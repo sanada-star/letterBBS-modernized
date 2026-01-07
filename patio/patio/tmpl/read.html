@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="!bbs_css!" rel="stylesheet">
+	<script src="!bbs_js!"></script>
+	<title>記事閲覧</title>
+</head>
+
+<body>
+
+	<header id="head">
+		<div class="main-ttl">
+			<h1>!bbs_title!</h1>
+		</div>
+	</header>
+
+	<main class="main">
+
+		<div class="bbs-navi">
+			<a href="!bbs_cgi!">↩ 一覧に戻る</a>
+			<!-- past -->
+			&gt; <a href="!bbs_cgi!?mode=past">過去ログ</a>
+			<!-- /past -->
+			&gt; 記事閲覧
+		</div>
+
+		<!-- Main Thread Post -->
+		<article class="post starter">
+			<div class="art-head">
+				!ico! !sub!
+			</div>
+
+			<div class="art-meta">
+				<div><b>投稿者</b>： !name!</div>
+				<div><b>投稿日</b>： !date!</div>
+				<!-- id -->
+				<div><b>ID</b>： !id!</div>
+				<!-- /id -->
+				<div><b>URL</b>： !url!</div>
+			</div>
+
+			<div class="comment">
+				!comment!
+			</div>
+
+			<!-- edit -->
+			<div class="edit-link">
+				!ico_edit! <span>編集</span>
+			</div>
+			<!-- /edit -->
+		</article>
+
+		!page_btn!
+
+		<!-- Replies Loop -->
+		<section class="replies">
+			<!-- loop -->
+			<article class="post reply">
+				<div class="art-meta art-meta-flex">
+					<div><b>!res_name!</b> <span style="font-size:0.8rem;">(!res_date!)</span></div>
+					<div class="fw-bold">!res_sub!</div>
+				</div>
+
+				<div class="comment">
+					!res_com!
+				</div>
+
+				<!-- edit -->
+				<div class="edit-link">
+					!res_ico_edit! <span>編集</span>
+				</div>
+				<!-- /edit -->
+			</article>
+			<!-- /loop -->
+		</section>
+
+		!page_btn!
+
+		<!-- Reply Form -->
+		<!-- resform -->
+		<div class="form-container mt-3">
+			<h3 class="topic-header mb-1" style="text-align:left; font-size:1.2rem;">✉ お返事を書く</h3>
+
+			<form action="!regist_cgi!" method="post" name="bbsform" enctype="multipart/form-data">
+				<input type="hidden" name="mode" value="regist">
+				<input type="hidden" name="res" value="!res!">
+
+				<div class="bbsform">
+					<div class="form-group">
+						<label>件名</label>
+						<input type="text" name="sub" value="!fm_sub!">
+						<div class="mt-1" style="font-size:0.8rem;">
+							<input type="checkbox" name="sort" value="1" checked> スレッドをトップへ上げる
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label>名前</label>
+						<input type="text" name="name" value="!fm_name!">
+					</div>
+
+					<div class="form-group">
+						<label>メール (任意)</label>
+						<input type="text" name="email" value="!fm_email!">
+						<select name="mlo">
+							<!-- op_mlo -->
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label>URL (任意)</label>
+						<input type="text" name="url" value="!fm_url!">
+					</div>
+
+					<div class="form-group">
+						<label>画像添付</label>
+						<input type="file" name="upfile1">
+						<input type="file" name="upfile2">
+						<input type="file" name="upfile3">
+					</div>
+
+					<div class="form-group">
+						<label>削除パスワード</label>
+						<input type="password" name="pwd">
+					</div>
+
+					<!-- captcha -->
+					<div class="form-group">
+						<label>画像認証</label>
+						<div>
+							<input type="text" name="captcha" maxlength="8" style="width:150px;">
+							<img src="!captcha_cgi!?!str_crypt!" class="capt" alt="Key">
+							<input type="hidden" name="str_crypt" value="!str_crypt!">
+						</div>
+					</div>
+					<!-- /captcha -->
+
+					<div class="form-group">
+						<label>メッセージ</label>
+						<div class="smile-box">!smile!</div>
+						<textarea name="comment" rows="7"></textarea>
+					</div>
+				</div>
+
+				<div class="submit-btn text-center mt-2">
+					<input type="submit" value="お返事を送る">
+				</div>
+			</form>
+		</div>
+		<!-- /resform -->
+
+	</main>
+</body>
+
+</html>

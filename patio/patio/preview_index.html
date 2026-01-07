@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- Pointing to the CSS file we created -->
+    <link href="./cmn/style.css" rel="stylesheet">
+    <style>
+        /* Extra styles for preview purpose */
+        body {
+            padding-bottom: 2rem;
+        }
+    </style>
+    <title>Open Private Mailbox (Preview)</title>
+</head>
+
+<body>
+
+    <header id="head">
+        <div style="font-size:0.8rem; opacity:0.8;">ようこそ、<b>Guest</b>さん</div>
+        <div class="main-ttl">
+            <h1>Open Private Mailbox</h1>
+        </div>
+    </header>
+
+    <nav id="menu">
+        <a href="#">✉ 新規お手紙</a>
+        <a href="#">🏠 ホーム</a>
+        <a href="#" onclick="alert('This is a preview');return false;">⚠ 留意事項</a>
+        <a href="#">🔍 検索</a>
+        <a href="#">📜 過去ログ</a>
+        <a href="#">🚪 ログオフ</a>
+        <a href="#">🔧 管理</a>
+    </nav>
+
+    <main class="main">
+
+        <div id="comment">
+            <p>ここは「オープン私書箱」です。キャラクター宛ての手紙を送ることができます。</p>
+            <p>※返信は各スレッドの最下部から行ってください。</p>
+        </div>
+
+        <section class="topic-container">
+            <h2 class="topic-header">
+                📁 お手紙一覧
+            </h2>
+
+            <!-- Sample Thread 1 -->
+            <article class="thread-card">
+                <div class="thread-icon" style="color:#ff4757;">★</div>
+                <div class="thread-content">
+                    <a href="#" class="thread-title">また遊ぼうね！</a>
+                    <div class="thread-meta">
+                        <span>From: <b>アリス</b></span>
+                    </div>
+                </div>
+                <div class="thread-stats">
+                    <span>3 通</span>
+                    <span class="update">2026/01/07 (New)</span>
+                </div>
+            </article>
+
+            <!-- Sample Thread 2 -->
+            <article class="thread-card">
+                <div class="thread-icon">📁</div>
+                <div class="thread-content">
+                    <a href="#" class="thread-title">例の件について</a>
+                    <div class="thread-meta">
+                        <span>From: <b>ボブ</b></span>
+                    </div>
+                </div>
+                <div class="thread-stats">
+                    <span>1 通</span>
+                    <span class="update">2026/01/06</span>
+                </div>
+            </article>
+
+            <!-- Sample Thread 3 -->
+            <article class="thread-card" style="border-left: 4px solid #aaa;">
+                <div class="thread-icon">🔒</div>
+                <div class="thread-content">
+                    <a href="#" class="thread-title">秘密の連絡</a>
+                    <div class="thread-meta">
+                        <span>From: <b>Unknown</b></span>
+                    </div>
+                </div>
+                <div class="thread-stats">
+                    <span>0 通</span>
+                    <span class="update">2026/01/05</span>
+                </div>
+            </article>
+
+        </section>
+
+        <div class="page-btn">
+            <span class="pg-on">1</span> <span class="pg-off"><a href="#">2</a></span> <span class="pg-off"><a
+                    href="#">3</a></span>
+        </div>
+
+        <div id="icon-mark" style="text-align: center; margin-top:2rem; font-size:0.9rem; opacity:0.7;">
+            📁 未読あり
+            🖼 画像あり
+            🔒 ロック
+            🔔 重要
+        </div>
+
+    </main>
+
+</body>
+
+</html>

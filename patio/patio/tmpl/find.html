@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="!bbs_css!" rel="stylesheet">
+	<title>検索画面</title>
+</head>
+
+<body>
+
+	<header id="head">
+		<div class="main-ttl">
+			<h1>!bbs_title!</h1>
+		</div>
+	</header>
+
+	<main class="main">
+		<div class="bbs-navi">
+			<a href="!bbs_cgi!">↩ 一覧に戻る</a> &gt; 検索
+		</div>
+
+		<div class="form-container">
+			<h2 class="topic-header mb-1">🔍 ワード検索</h2>
+
+			<form action="!bbs_cgi!" method="get">
+				<input type="hidden" name="mode" value="find">
+
+				<div class="bbsform">
+					<div class="form-group">
+						<label>キーワード</label>
+						<div style="display:flex; gap:0.5rem;">
+							<input type="text" name="word" value="!word!" style="flex:1;">
+							<select name="cond" style="width:auto;">
+								<!-- op_cond -->
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label>検索対象</label>
+						<div class="smile-box" style="background:#fff; border:1px solid var(--color-border);">
+							!area!
+						</div>
+					</div>
+
+					<div class="text-center mt-1">
+						<input type="submit" value="検索する" class="btn-secondary">
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<!-- search -->
+		<p class="hit-msg text-center mb-1 fw-bold" style="color:var(--color-primary);">
+			検索結果： <b>!hit!</b>件ヒット
+		</p>
+
+		<section class="topic-container">
+			<!-- loop -->
+			<article class="thread-card">
+				<div class="thread-icon">!icon!</div>
+				<div class="thread-content">
+					<a href="!res!" class="thread-title">!sub!</a>
+					<div class="thread-meta">
+						<span>From: <b>!name!</b></span>
+					</div>
+				</div>
+				<div class="thread-stats">
+					<span class="update">!update!</span>
+				</div>
+			</article>
+			<!-- /loop -->
+		</section>
+		<!-- /search -->
+
+	</main>
+</body>
+
+</html>

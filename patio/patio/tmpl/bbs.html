@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="!bbs_css!" rel="stylesheet">
+	<script src="!bbs_js!"></script>
+	<title>!bbs_title!</title>
+</head>
+
+<body>
+
+	<header id="head">
+		<!-- auth -->
+		<div style="font-size:0.8rem; opacity:0.8;">ようこそ、<b>!login-name!</b>さん</div>
+		<!-- /auth -->
+		<div class="main-ttl">
+			<h1>!bbs_title!</h1>
+		</div>
+	</header>
+
+	<nav id="menu">
+		<a href="!bbs_cgi!?mode=form">✉ 新規お手紙</a>
+		<a href="!homepage!" target="_top">🏠 ホーム</a>
+		<a href="!bbs_cgi!?mode=note" onclick="popup('!bbs_cgi!?mode=note');return false;">⚠ 留意事項</a>
+		<a href="!bbs_cgi!?mode=find">🔍 検索</a>
+		<a href="!bbs_cgi!?mode=past">📜 過去ログ</a>
+		<!-- auth -->
+		<a href="!bbs_cgi!?mode=logoff">🚪 ログオフ</a>
+		<!-- /auth -->
+		<a href="!admin_cgi!">🔧 管理</a>
+	</nav>
+
+	<main class="main">
+
+		<div id="comment">
+			<p>ここは「オープン私書箱」です。キャラクター宛ての手紙を送ることができます。</p>
+			<p>※返信は各スレッドの最下部から行ってください。</p>
+		</div>
+
+		<section class="topic-container">
+			<h2 class="topic-header">
+				!ico:list.png! お手紙一覧
+			</h2>
+
+			<!-- loop -->
+			<article class="thread-card">
+				<div class="thread-icon">!ico!</div>
+				<div class="thread-content">
+					<a href="!res!" class="thread-title">!topic!</a>
+					<div class="thread-meta">
+						<span>From: <b>!name!</b></span>
+					</div>
+				</div>
+				<div class="thread-stats">
+					<span>!count! 通</span>
+					<span class="update">!date!</span>
+				</div>
+			</article>
+			<!-- /loop -->
+		</section>
+
+		!page-btn!
+
+		<div id="icon-mark" class="text-center mt-2 icon-list">
+			!ico:fld_nor.gif! 未読あり
+			!ico:fld_img.gif! 画像あり
+			!ico:fld_lock.gif! ロック
+			!ico:fld_bell.gif! 重要
+		</div>
+
+	</main>
+
+</body>
+
+</html>

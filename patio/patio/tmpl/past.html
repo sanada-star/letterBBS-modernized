@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="!bbs_css!" rel="stylesheet">
+	<title>過去ログ</title>
+</head>
+
+<body>
+
+	<header id="head">
+		<div class="main-ttl">
+			<h1>!bbs_title!</h1>
+		</div>
+	</header>
+
+	<main class="main">
+		<div class="bbs-navi">
+			<a href="!bbs_cgi!">↩ 一覧に戻る</a> &gt; 過去ログ
+		</div>
+
+		<section class="topic-container">
+			<h2 class="topic-header">!ico:list.png! 過去ログ保管庫</h2>
+
+			<!-- loop -->
+			<article class="thread-card" style="opacity:0.8; filter:grayscale(0.5);">
+				<div class="thread-icon">!ico!</div>
+				<div class="thread-content">
+					<a href="!res!" class="thread-title" style="color:#666;">!sub!</a>
+					<div class="thread-meta">
+						<span>From: <b>!name!</b></span>
+					</div>
+				</div>
+				<div class="thread-stats">
+					<span class="update">!update!</span>
+				</div>
+			</article>
+			<!-- /loop -->
+		</section>
+
+		!page-btn!
+
+	</main>
+</body>
+
+</html>

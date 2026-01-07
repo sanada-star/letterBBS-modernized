@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="!bbs_css!" rel="stylesheet">
+	<script src="!bbs_js!"></script>
+	<title>新規お手紙作成</title>
+</head>
+
+<body>
+
+	<header id="head">
+		<div class="main-ttl">
+			<h1>!bbs_title!</h1>
+		</div>
+	</header>
+
+	<main class="main">
+
+		<div class="bbs-navi">
+			<a href="!bbs_cgi!">↩ 一覧に戻る</a>
+		</div>
+
+		<div class="form-container">
+			<h2 class="topic-header mb-1">!ico:fld_new.gif! 新しいお手紙を書く</h2>
+
+			<form action="!regist_cgi!" method="post" enctype="multipart/form-data" name="bbsform">
+				<input type="hidden" name="mode" value="regist">
+
+				<div class="bbsform">
+					<div class="form-group">
+						<label>件名</label>
+						<input type="text" name="sub" placeholder="用件を記入してください">
+					</div>
+
+					<div class="form-group">
+						<label>あて先 (名前)</label>
+						<input type="text" name="name" value="!name!" placeholder="あなたのお名前">
+					</div>
+
+					<div class="form-group">
+						<label>メールアドレス (任意)</label>
+						<input type="text" name="email" value="!email!" placeholder="省略可">
+						<div class="mt-1">
+							<select name="mlo">
+								<!-- op_mlo -->
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label>URL (任意)</label>
+						<input type="text" name="url" value="!url!" placeholder="http://...">
+					</div>
+
+					<div class="form-group">
+						<label>画像添付</label>
+						<input type="file" name="upfile1">
+						<input type="file" name="upfile2">
+						<input type="file" name="upfile3">
+					</div>
+
+					<div class="form-group">
+						<label>削除用パスワード</label>
+						<input type="password" name="pwd" maxlength="8">
+					</div>
+
+					<!-- captcha -->
+					<div class="form-group">
+						<label>画像認証</label>
+						<div>
+							<input type="text" name="captcha" maxlength="8" style="width:150px; display:inline-block;">
+							<img src="!captcha_cgi!?!str_crypt!" class="capt" alt="Key"
+								style="vertical-align:middle; margin-left:10px;">
+							<input type="hidden" name="str_crypt" value="!str_crypt!">
+						</div>
+					</div>
+					<!-- /captcha -->
+
+					<div class="form-group">
+						<label>メッセージ</label>
+						<div class="smile-box">
+							!smile!
+						</div>
+						<textarea name="comment" rows="10" placeholder="ここにメッセージを入力..."></textarea>
+					</div>
+				</div>
+
+				<div class="submit-btn text-center mt-2">
+					<input type="submit" value="手紙を送る ✉">
+				</div>
+
+			</form>
+		</div>
+
+	</main>
+</body>
+
+</html>
