@@ -106,7 +106,7 @@ $cf{pgmax_now} = 10;
 $cf{pgmax_past} = 20;
 
 # コメント入力最大文字数
-$cf{max_msg} = 600;
+$cf{max_msg} = 50000;
 
 # URLの自動リンク (0=no 1=yes)
 $cf{autolink} = 1;
@@ -142,7 +142,7 @@ $cf{deny_addr} = '';
 $cf{postonly} = 1;
 
 # 連続投稿の禁止時間（秒）
-$cf{wait} = 60;
+$cf{wait} = 0;
 
 # 禁止ワード
 # → 投稿時禁止するワードをコンマで区切る
