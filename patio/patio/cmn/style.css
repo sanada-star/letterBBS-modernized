@@ -188,27 +188,95 @@ a:hover {
 /* Forms */
 .form-container {
 	background: var(--color-card);
-	padding: 2rem;
-	border-radius: 12px;
+	padding: 2.5rem;
+	border-radius: 20px;
 	box-shadow: var(--shadow-pop);
 	margin-bottom: 2rem;
-	border: 2px solid var(--color-border);
-}
-
-.form-group {
-	margin-bottom: 1.5rem;
-}
-
-.form-group label {
-	display: block;
-	margin-bottom: 0.5rem;
-	font-weight: bold;
-	color: var(--color-primary);
-	font-family: var(--font-heading);
+	border: 3px solid var(--color-border);
+	max-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .bbsform {
 	width: 100%;
+}
+
+.form-group {
+	margin-bottom: 2rem;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 0.8rem;
+	font-weight: bold;
+	color: var(--color-primary);
+	font-family: var(--font-heading);
+	font-size: 1.1rem;
+}
+
+.form-container input[type="text"],
+.form-container input[type="password"],
+.form-container input[type="email"],
+.form-container input[type="url"],
+.form-container select,
+.form-container textarea {
+	width: 100%;
+	padding: 0.8rem 1rem;
+	border: 2px solid var(--color-border);
+	border-radius: 12px;
+	font-family: var(--font-body);
+	font-size: 1rem;
+	background: #fff;
+	box-sizing: border-box;
+	transition: 0.2s;
+}
+
+.form-container input:focus,
+.form-container textarea:focus {
+	outline: none;
+	border-color: var(--color-accent);
+	box-shadow: 0 0 0 4px rgba(255, 165, 2, 0.2);
+}
+
+.form-container textarea {
+	min-height: 250px;
+	resize: vertical;
+	line-height: 1.6;
+}
+
+.captcha-container {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.captcha-container input {
+	flex: 1;
+}
+
+.submit-btn-area {
+	text-align: center;
+	margin-top: 3rem;
+}
+
+.submit-btn {
+	background: var(--color-secondary);
+	color: #fff;
+	padding: 1rem 3.5rem;
+	font-family: var(--font-heading);
+	font-size: 1.25rem;
+	border: 3px solid var(--color-border);
+	border-radius: 100px;
+	cursor: pointer;
+	box-shadow: var(--shadow-pop);
+	transition: 0.2s;
+}
+
+.submit-btn:hover {
+	transform: translate(-3px, -3px);
+	box-shadow: 8px 8px 0px var(--color-border);
+	background: #26af61;
 }
 
 /* Posts & Articles */

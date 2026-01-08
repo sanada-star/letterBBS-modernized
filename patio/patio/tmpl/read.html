@@ -130,8 +130,8 @@
 					<!-- captcha -->
 					<div class="form-group">
 						<label>画像認証</label>
-						<div>
-							<input type="text" name="captcha" maxlength="8" style="width:150px;">
+						<div class="captcha-container">
+							<input type="text" name="captcha" maxlength="8">
 							<img src="!captcha_cgi!?!str_crypt!" class="capt" alt="Key">
 							<input type="hidden" name="str_crypt" value="!str_crypt!">
 						</div>
@@ -145,8 +145,8 @@
 					</div>
 				</div>
 
-				<div class="submit-btn text-center mt-2">
-					<input type="submit" value="お返事を送る">
+				<div class="submit-btn-area">
+					<input type="submit" value="お返事を送る" class="submit-btn">
 				</div>
 			</form>
 		</div>
