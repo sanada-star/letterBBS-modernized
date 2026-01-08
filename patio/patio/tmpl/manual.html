@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="!bbs_css!" rel="stylesheet">
+    <title>使い方マニュアル - WEB PATIO</title>
+    <style>
+        .manual-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .manual-section {
+            background: var(--color-card);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-pop);
+        }
+
+        .manual-section h2 {
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .manual-section h3 {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .manual-section p,
+        .manual-section li {
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .manual-section ul {
+            margin-left: 1.5rem;
+        }
+
+        .manual-img {
+            max-width: 100%;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            margin: 1rem 0;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight-box {
+            background: #fff9c4;
+            border-left: 4px solid var(--color-accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--color-primary);
+            color: #fff;
+            width: 2rem;
+            height: 2rem;
+            line-height: 2rem;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="head">
+        <div class="main-ttl">
+            <h1>!bbs_title!</h1>
+        </div>
+    </header>
+
+    <nav id="menu">
+        <a href="!patio_cgi!" class="btn">私書箱一覧</a>
+        <a href="!patio_cgi!?mode=form" class="btn">新規投稿手紙</a>
+        <a href="manual.html" class="btn-secondary">使い方</a>
+    </nav>
+
+    <main class="manual-container">
+        <div class="manual-section">
+            <h2>📮 WEB PATIO 使い方マニュアル</h2>
+            <p>この掲示板はPBC（Play-by-Chat）プレイヤー向けに特別にカスタマイズされた「私書箱システム」です。</p>
+            <p>通常の掲示板とは異なる特殊な機能が実装されています。</p>
+        </div>
+
+        <div class="manual-section">
+            <h2>✨ 特殊機能1：文通デスク（一括返信機能）</h2>
+            <p>複数の相手からお手紙をもらった時、メモ帳を使わずに一気にお返事を書いて送れる画期的な機能です。</p>
+
+            <h3><span class="step-number">1</span>デスクにお返事を置く</h3>
+            <p>各お手紙の横にある「📥 デスクに置く」ボタンをクリックします。</p>
+
+            <h3><span class="step-number">2</span>お返事を書いて保存</h3>
+            <p>表示されるフォームに以下を入力します：</p>
+            <ul>
+                <li><strong>件名</strong>：お返事のタイトル</li>
+                <li><strong>あなたの名前</strong>：投稿者名</li>
+                <li><strong>パスワード</strong>：編集・削除用パスワード（忘れずに！）</li>
+                <li><strong>メッセージ</strong>：お返事の本文</li>
+            </ul>
+            <p>入力したら「保存してデスクへ」をクリック。</p>
+
+            <h3><span class="step-number">3</span>他のお手紙にも同様に返信準備</h3>
+            <p>同じ手順で、お返事したい全ての相手にお返事を準備します。</p>
+
+            <h3><span class="step-number">4</span>一括送信</h3>
+            <p>画面下部の「文通デスク」パネルにストックされたお返事が表示されます。</p>
+            <p>「🚀 一括送信」ボタンをクリックすると、自動的にそれぞれの相手の私書箱へお返事が届きます！</p>
+
+            <div class="highlight-box">
+                <strong>💡 ポイント：</strong>
+                <ul>
+                    <li>メモ帳を開く必要なし</li>
+                    <li>コピペの手間なし</li>
+                    <li>宛先間違いのリスクなし</li>
+                    <li>自分のスレッド（舞台）から動かずに全部完結</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="manual-section">
+            <h2>💬 特殊機能2：浮遊フォーム（直接返信）</h2>
+            <p>相手の私書箱へ移動せずに、その場でお返事を書ける機能です。</p>
+
+            <h3>使い方</h3>
+            <p>各お手紙の横にある「直接返信 ✉」ボタンをクリックすると、画面端に小さな返信フォームが浮かび上がります。</p>
+            <p>そのまま入力して送信すると、相手の私書箱に届きます。</p>
+
+            <div class="highlight-box">
+                <strong>💡 ポイント：</strong>
+                <ul>
+                    <li>今読んでいるスレッドから移動しなくてOK</li>
+                    <li>フォームはドラッグで移動可能</li>
+                    <li>×ボタンで閉じられます</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="manual-section">
+            <h2>🎯 特殊機能3：超高密度レイアウト</h2>
+            <p>一覧画面では、1画面に10スレッド以上が表示されるようデザインされています。</p>
+            <ul>
+                <li>タイトル、投稿者、最終投稿者、更新日時が1行に集約</li>
+                <li>カード全体がクリック可能</li>
+                <li>情報密度が高く、一目で全体を把握できます</li>
+            </ul>
+        </div>
+
+        <div class="manual-section">
+            <h2>📝 通常の使い方</h2>
+            <h3>新しい私書箱（スレッド）を作る</h3>
+            <p>上部ナビゲーションの「新規投稿手紙」ボタンをクリックして、件名と内容を入力します。</p>
+
+            <h3>お手紙を読む</h3>
+            <p>一覧画面でスレッドをクリックすると、お手紙の内容が表示されます。</p>
+
+            <h3>返信する（通常の方法）</h3>
+            <p>スレッドを開き、最下部の「書き込み画面」から返信できます。</p>
+        </div>
+
+        <div class="manual-section">
+            <h2>🔒 セキュリティについて</h2>
+            <ul>
+                <li>投稿時に設定したパスワードで、後から編集・削除が可能です</li>
+                <li>パスワードは必ず覚えておいてください</li>
+                <li>文通デスクの内容はブラウザに保存されます（他の人には見えません）</li>
+            </ul>
+        </div>
+
+        <div class="manual-section">
+            <h2>❓ よくある質問</h2>
+            <h3>Q: 文通デスクの内容が消えた</h3>
+            <p>A: ブラウザのキャッシュをクリアすると消えます。重要な内容は早めに送信しましょう。</p>
+
+            <h3>Q: 一括送信が失敗した</h3>
+            <p>A: 相手の私書箱が見つからない場合は失敗します。失敗したアイテムだけデスクに残るので、再試行できます。</p>
+
+            <h3>Q: パスワードを忘れた</h3>
+            <p>A: 管理者に連絡してください。</p>
+        </div>
+    </main>
+
+</body>
+
+</html>

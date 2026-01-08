@@ -10,6 +10,12 @@
 </head>
 
 <body>
+	<script>
+		// miniモード判定
+		if (window.location.search.includes('view=mini')) {
+			document.body.classList.add('mini-mode');
+		}
+	</script>
 
 	<header id="head">
 		<div class="main-ttl">
@@ -21,7 +27,9 @@
 
 		<div class="bbs-navi" style="display:flex; justify-content:space-between; align-items:center;">
 			<div>
-				<a href="!bbs_cgi!">↩ 一覧に戻る</a>
+				<a href="!bbs_cgi!">↩ 一覧に戻る</a> |
+				<a href="#resform" onclick="document.bbsform.comment.focus();" title="返信フォームへ移動">✉ 返信する</a> |
+				<a href="!tmpldir!/manual.html">📖 使い方</a>
 				<!-- past -->
 				&gt; <a href="!bbs_cgi!?mode=past">過去ログ</a>
 				<!-- /past -->
