@@ -65,8 +65,21 @@
 				<div class="res-sub">!res_sub!</div>
 				<div class="art-meta-flex">
 					<div><b>!res_name!</b> <span style="font-size:0.8rem;">(!res_date!)</span></div>
-					<a href="javascript:void(0)" onclick="openFloatingForm('!res_name!')"
-						class="btn-floating-open">相手の私書箱でお返事 ✉</a>
+					<div class="reply-actions">
+						<a href="javascript:void(0)" onclick="addToDesk('!res_name!', this)" class="btn-desk">📥
+							デスクに置く</a>
+						<a href="javascript:void(0)" onclick="openFloatingForm('!res_name!')"
+							class="btn-floating-open">直接返信 ✉</a>
+					</div>
+				</div>
+
+				<!-- デスク用入力エリア（初期非表示） -->
+				<div class="desk-input-area" style="display:none;">
+					<textarea placeholder="!res_name! さんへのお返事をここに..." rows="4" class="desk-textarea"></textarea>
+					<div class="desk-actions">
+						<button onclick="saveToDeskStorage('!res_name!', this)" class="btn-save-desk">保存してデスクへ</button>
+						<button onclick="closeDeskInput(this)" class="btn-cancel-desk">キャンセル</button>
+					</div>
 				</div>
 
 				<div class="comment">
@@ -140,6 +153,24 @@
 		<!-- /resform -->
 
 	</main>
+
+	<!-- 文通デスクパネル -->
+	<div id="correspondeskPanel" class="correspondesk-panel">
+		<div class="desk-header">
+			<h3>✉️ 文通デスク</h3>
+			<div class="desk-header-actions">
+				<button onclick="clearAllDeskItems()" class="btn-clear-all">全てクリア</button>
+				<button onclick="toggleDeskPanel()" class="btn-toggle-desk">▼</button>
+			</div>
+		</div>
+		<div class="desk-content">
+			<div id="deskItemList" class="desk-item-list">
+				<!-- JavaScriptで動的に追加 -->
+			</div>
+			<p class="desk-empty-msg" id="deskEmptyMsg">お返事がストックされていません。</p>
+		</div>
+	</div>
+
 </body>
 
 </html>

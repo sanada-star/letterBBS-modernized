@@ -91,3 +91,135 @@ function makeDraggable(el, handle) {
         document.onmousemove = null;
     }
 }
+
+// ========================================
+// 文通デスク機能（Correspondesk）
+// ========================================
+
+const DESK_STORAGE_KEY = 'letterBBS_correspondesk';
+
+// デスクに置くボタンをクリック
+function addToDesk(targetName, buttonElement) {
+    // 親のpostコンテナから入力エリアを探して表示
+    const postElement = buttonElement.closest('.post');
+    const inputArea = postElement.querySelector('.desk-input-area');
+    if (inputArea) {
+        inputArea.style.display = 'block';
+        const textarea = inputArea.querySelector('.desk-textarea');
+        textarea.focus();
+    }
+}
+
+// 入力エリアを閉じる
+function closeDeskInput(buttonElement) {
+    const inputArea = buttonElement.closest('.desk-input-area');
+    if (inputArea) {
+        inputArea.style.display = 'none';
+        const textarea = inputArea.querySelector('.desk-textarea');
+        textarea.value = '';
+    }
+}
+
+// お返事をlocalStorageに保存
+function saveToDeskStorage(targetName, buttonElement) {
+    const inputArea = buttonElement.closest('.desk-input-area');
+    const textarea = inputArea.querySelector('.desk-textarea');
+    const message = textarea.value.trim();
+
+    if (!message) {
+        alert('お返事の内容を入力してください。');
+        return;
+    }
+
+    // 既存のストックを取得
+    let deskItems = JSON.parse(localStorage.getItem(DESK_STORAGE_KEY) || '[]');
+
+    // 同じ宛先が既にある場合は上書き
+    const existingIndex = deskItems.findIndex(item => item.targetName === targetName);
+    if (existingIndex >= 0) {
+        deskItems[existingIndex].message = message;
+        deskItems[existingIndex].timestamp = new Date().toISOString();
+    } else {
+        deskItems.push({
+            targetName: targetName,
+            message: message,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    localStorage.setItem(DESK_STORAGE_KEY, JSON.stringify(deskItems));
+
+    // 入力エリアを閉じる
+    closeDeskInput(buttonElement);
+
+    // デスクパネルを更新
+    refreshDeskPanel();
+
+    alert(`${targetName} さんへのお返事を文通デスクに保存しました！`);
+}
+
+// デスクパネルを更新
+function refreshDeskPanel() {
+    const deskItems = JSON.parse(localStorage.getItem(DESK_STORAGE_KEY) || '[]');
+    const listContainer = document.getElementById('deskItemList');
+    const emptyMsg = document.getElementById('deskEmptyMsg');
+
+    if (deskItems.length === 0) {
+        listContainer.innerHTML = '';
+        emptyMsg.style.display = 'block';
+        return;
+    }
+
+    emptyMsg.style.display = 'none';
+    listContainer.innerHTML = deskItems.map((item, index) => `
+        <div class="desk-item">
+            <div class="desk-item-header">
+                <strong>宛先: ${item.targetName}</strong>
+                <button onclick="removeDeskItem(${index})" class="btn-remove-item">削除</button>
+            </div>
+            <div class="desk-item-message">${item.message.replace(/\n/g, '<br>')}</div>
+            <div class="desk-item-footer">
+                <small>${new Date(item.timestamp).toLocaleString('ja-JP')}</small>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 個別のアイテムを削除
+function removeDeskItem(index) {
+    let deskItems = JSON.parse(localStorage.getItem(DESK_STORAGE_KEY) || '[]');
+    deskItems.splice(index, 1);
+    localStorage.setItem(DESK_STORAGE_KEY, JSON.stringify(deskItems));
+    refreshDeskPanel();
+}
+
+// 全てクリア
+function clearAllDeskItems() {
+    if (confirm('文通デスクの全てのお返事を削除しますか？')) {
+        localStorage.removeItem(DESK_STORAGE_KEY);
+        refreshDeskPanel();
+    }
+}
+
+// デスクパネルの開閉
+function toggleDeskPanel() {
+    const panel = document.getElementById('correspondeskPanel');
+    const content = panel.querySelector('.desk-content');
+    const toggleBtn = panel.querySelector('.btn-toggle-desk');
+
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggleBtn.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        toggleBtn.textContent = '▲';
+    }
+}
+
+// ページ読み込み時にデスクパネルを初期化
+document.addEventListener('DOMContentLoaded', function () {
+    const panel = document.getElementById('correspondeskPanel');
+    if (panel) {
+        refreshDeskPanel();
+    }
+});
