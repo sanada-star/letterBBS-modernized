@@ -107,7 +107,7 @@ sub bbs_list {
 		my $tmp = $loop;
 		$tmp =~ s/!ico!/icon_img($key,$res,$alarm,$upl)/eg;
 		$tmp =~ s/!url!/$cf{bbs_cgi}?read=$num&amp;ukey=$ukey/g;
-		$tmp =~ s|!topic!|<a href="$cf{bbs_cgi}?read=$num&amp;ukey=$ukey">$sub</a>|g;
+		$tmp =~ s/!sub!/$sub/g;
 		$tmp =~ s/!name!/$nam/g;
 		$tmp =~ s/!res!/$res/g;
 		$tmp =~ s/!total!/($res+1)/eg; # 親記事含めた合計
