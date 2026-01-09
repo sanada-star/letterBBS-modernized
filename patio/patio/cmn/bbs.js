@@ -531,6 +531,7 @@ async function sendAllDeskItems() {
             const formData = new FormData();
             formData.append('mode', 'regist');
             formData.append('res', threadId);  // 重要：返信モード
+            formData.append('sort', '1');      // スレッドをトップへ上げる
             formData.append('sub', item.subject);
             formData.append('name', item.name);
             formData.append('pwd', item.pwd);
