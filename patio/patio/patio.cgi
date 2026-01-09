@@ -108,7 +108,7 @@ sub download_archive {
     my $count_total = 0;
     my @debug_log;
     
-    # デバッグ情報: カレントディレクトリ確認
+    # デバッグ情報
     use Cwd;
     push(@debug_log, "CWD: " . Cwd::getcwd());
     push(@debug_log, "UplDir Config: $cf{upldir}");
@@ -117,23 +117,34 @@ sub download_archive {
     my $zip = Archive::Zip->new();
     
     # 画像ファイル追加
-    foreach my $img_rel_path (keys %images_to_add) {
+    foreach my $zip_path (keys %images_to_add) {
         $count_total++;
-        my $zip_path = $images_to_add{$img_rel_path};
+        my $real_path = $images_to_add{$zip_path};
         
         # デバッグ: パス確認
-        my $exists = (-e $img_rel_path) ? "YES" : "NO";
-        push(@debug_log, "File: $img_rel_path -> Exists: $exists");
-
-        if (-e $img_rel_path) {
-            my $file_member = $zip->addFile( $img_rel_path, $zip_path );
+        my $exists = (-e $real_path) ? "YES" : "NO";
+        push(@debug_log, "File: $real_path -> Exists: $exists"); # ZIP path is key now? No wait. 
+        # Wait, I need to check how I stored them.
+        # Below logic in process_archive_post: $img_ref->{$zip_path} = $src_file; -- NO
+        # Original: $img_ref->{$src_file} = $zip_path;
+        # So key is src_file (absolute), value is zip_path (relative).
+    }
+    
+    # Re-loop with correct checking
+    foreach my $src_file (keys %images_to_add) {
+         my $zip_rel_path = $images_to_add{$src_file};
+         
+         if (-e $src_file) {
+            my $file_member = $zip->addFile( $src_file, $zip_rel_path );
             if ($file_member) {
                 $file_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
                 $count_ok++;
             } else {
-                 push(@debug_log, "Start Adding File Failed: $img_rel_path");
+                 push(@debug_log, "AddFile Failed: $src_file");
             }
-        }
+         } else {
+             push(@debug_log, "Not Found: $src_file");
+         }
     }
     
     # フッターにデバッグ情報追加
@@ -169,20 +180,28 @@ sub process_archive_post {
     my $img_html = "";
     foreach my $up ($up1, $up2, $up3) {
         if ($up) {
-            # split limitを明示的に指定して空フィールドを保持
-            my ($ext, $w, $h) = split(/,/, $up, 3);
-            
-            # 拡張子がない場合のフォールバック（デバッグ用）
-            $ext ||= ".jpg"; 
-
+            # ログの拡張子情報が壊れている可能性があるため、globで実ファイルを探す
             my $n = ($up eq $up1) ? 1 : ($up eq $up2) ? 2 : 3;
-            my $src_file = "$cf{upldir}/$tim-$n$ext";
-            my $zip_path = "images/$tim-$n$ext";
+            my $search_pattern = "$cf{upldir}/$tim-$n.*";
+            my @found = glob($search_pattern);
             
-            # パスをハッシュに登録
-            $img_ref->{$src_file} = $zip_path;
-            
-            $img_html .= qq|<div class="art-img"><a href="$zip_path" target="_blank"><img src="$zip_path" style="max-width:300px;"><br><small>Debug: $up -> $src_file</small></a></div>|;
+            if (@found) {
+                my $src_file = $found[0]; # 最初のマッチを採用
+                
+                # 拡張子取得
+                my ($ext) = $src_file =~ /(\.[^.]+)$/;
+                $ext ||= ".jpg"; # fallback
+                
+                my $zip_path = "images/$tim-$n$ext";
+                
+                # パスをハッシュに登録 (Key: Absolute, Val: ZipRelative)
+                $img_ref->{$src_file} = $zip_path;
+                
+                $img_html .= qq|<div class="art-img"><a href="$zip_path" target="_blank"><img src="$zip_path" style="max-width:300px;"></a></div>|;
+            } else {
+                # ファイルが見つからない場合 (デバッグ表示)
+                $img_html .= qq|<div class="art-img"><span style="color:red; font-size:10px;">[ImgNotFound: $tim-$n]</span></div>|;
+            }
         }
     }
 
