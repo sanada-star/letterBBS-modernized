@@ -902,10 +902,10 @@ sub get_host {
 sub get_time {
 	# 時間取得
 	my $time = time;
-	my ($min,$hour,$mday,$mon,$year,$wday) = (localtime($time))[1..6];
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday) = (localtime($time))[0..6];
 	my @wk = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-	my $date = sprintf("%04d/%02d/%02d(%s) %02d:%02d",
-				$year+1900,$mon+1,$mday,$wk[$wday],$hour,$min);
+	my $date = sprintf("%04d/%02d/%02d(%s) %02d:%02d:%02d",
+				$year+1900,$mon+1,$mday,$wk[$wday],$hour,$min,$sec);
 	
 	return ($date,$time);
 }

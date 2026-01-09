@@ -322,18 +322,20 @@ async function loadConversationHistory(targetName, container) {
     }
 }
 
-// 日付文字列をDateオブジェクトに変換するヘルパー（強化版）
+// 日付文字列をDateオブジェクトに変換するヘルパー（強化版：秒対応）
 function parseDate(str) {
     if (!str) return 0;
-    // 数値だけ取り出して処理する (2026/01/09(Fri) 15:10 -> 2026, 1, 9, 15, 10)
-    const match = str.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2}).*?(\d{1,2}):(\d{1,2})/);
+    // 数値だけ取り出して処理する (2026/01/09(Fri) 15:10:05 -> 2026, 1, 9, 15, 10, 5)
+    // 古い形式 (2026/01/09(Fri) 15:10) にも対応できるよう、秒部分は任意(?:...)?にする
+    const match = str.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2}).*?(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
     if (match) {
         const year = parseInt(match[1], 10);
         const month = parseInt(match[2], 10) - 1; // 月は0始まり
         const day = parseInt(match[3], 10);
         const hour = parseInt(match[4], 10);
         const min = parseInt(match[5], 10);
-        return new Date(year, month, day, hour, min).getTime();
+        const sec = match[6] ? parseInt(match[6], 10) : 0; // 秒がなければ0
+        return new Date(year, month, day, hour, min, sec).getTime();
     }
     // フォールバック
     return Date.parse(str) || 0;
