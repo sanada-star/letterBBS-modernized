@@ -148,7 +148,7 @@ function addToDesk(arg1, arg2) {
 
         if (timelineContainer) {
             timelineContainer.style.display = 'flex'; // 表示
-            loadConversationHistory(targetName, timelineContainer);
+            loadConversationHistory(targetName, timelineContainer, postElement);
         }
 
         textarea.focus();
@@ -156,7 +156,7 @@ function addToDesk(arg1, arg2) {
 }
 
 // 会話履歴（タイムライン）をロードする
-async function loadConversationHistory(targetName, container) {
+async function loadConversationHistory(targetName, container, currentRefPost) {
     container.innerHTML = '<div class="timeline-loader">会話履歴を読み込んでいます...</div>';
 
     try {
@@ -179,26 +179,23 @@ async function loadConversationHistory(targetName, container) {
         // 2. 現在のページ（自分の箱）から「相手からのメッセージ」を抽出
         // .post.reply を走査
         const incomingMsgs = [];
+
         document.querySelectorAll('.post.reply').forEach(post => {
             const authorEl = post.querySelector('.res-author b');
             const dateEl = post.querySelector('.res-author span');
             const commentEl = post.querySelector('.comment');
+            const subEl = post.querySelector('.res-sub');
 
             if (authorEl && authorEl.innerText.trim() === targetName) {
                 // 日付パース
                 let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
 
                 // 本文のクレンジング
-                // 1. HTMLタグを除去してプレーンテキスト化（意図しないDOM混入防止）
-                // 2. 引用行（> で始まる行）を除去
-                // 3. 空行のトリム
                 let rawHtml = commentEl ? commentEl.innerHTML : '';
                 let cleanText = rawHtml
                     .split(/<br\s*\/?>/i)
                     .map(line => {
-                        // タグ除去
                         let text = line.replace(/<[^>]+>/g, '').trim();
-                        // 引用行（>...）を除去
                         if (text.startsWith('&gt;') || text.startsWith('>')) return null;
                         return text;
                     })
@@ -209,9 +206,11 @@ async function loadConversationHistory(targetName, container) {
                     incomingMsgs.push({
                         type: 'incoming',
                         author: targetName,
+                        subject: subEl ? subEl.innerText.trim() : '',
                         date: dateStr,
                         text: cleanText,
-                        rawDate: parseDate(dateStr)
+                        rawDate: parseDate(dateStr),
+                        isCurrent: (post === currentRefPost)
                     });
                 }
             }
@@ -235,6 +234,7 @@ async function loadConversationHistory(targetName, container) {
                 const authorEl = post.querySelector('.res-author b');
                 const dateEl = post.querySelector('.res-author span');
                 const commentEl = post.querySelector('.comment');
+                const subEl = post.querySelector('.res-sub');
 
                 if (authorEl && authorEl.innerText.trim() === myName) {
                     let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
@@ -254,9 +254,11 @@ async function loadConversationHistory(targetName, container) {
                         outgoingMsgs.push({
                             type: 'outgoing',
                             author: myName, // 自分
+                            subject: subEl ? subEl.innerText.trim() : '',
                             date: dateStr,
                             text: cleanText,
-                            rawDate: parseDate(dateStr)
+                            rawDate: parseDate(dateStr),
+                            isCurrent: false
                         });
                     }
                 }
@@ -277,7 +279,7 @@ async function loadConversationHistory(targetName, container) {
 
             allMsgs.forEach(msg => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'timeline-item'; // シンプルなリストアイテム
+                itemDiv.className = 'timeline-item' + (msg.isCurrent ? ' timeline-current' : '');
 
                 // 日付整形 (YYYY/MM/DD HH:MM)
                 let dateDisplay = msg.date.replace(/\([A-Za-z]+\)/, ''); // 曜日除去
@@ -290,8 +292,11 @@ async function loadConversationHistory(targetName, container) {
                 const authorClass = (msg.author === myName) ? 'timeline-author-me' : 'timeline-author-target';
 
                 headerDiv.innerHTML = `
-                    <span class="timeline-date">${dateDisplay}</span>
-                    <span class="timeline-author ${authorClass}">${msg.author}</span>
+                    <div class="timeline-meta">
+                        <span class="timeline-date">${dateDisplay}</span>
+                        <span class="timeline-author ${authorClass}">${msg.author}</span>
+                    </div>
+                    <div class="timeline-subject">${msg.subject}</div>
                 `;
 
                 // 本文

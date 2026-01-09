@@ -1186,3 +1186,47 @@ body.mini-mode .correspondesk-panel {
 .timeline-msg {
 	display: none;
 }
+
+/* Timeline Updates */
+.timeline-subject {
+	font-weight: 700;
+	font-size: 0.9em;
+	color: var(--color-text);
+	margin: 2px 0 4px;
+	padding-left: 8px;
+	border-left: 3px solid var(--color-border);
+	opacity: 0.8;
+}
+
+.timeline-meta {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.timeline-item.timeline-current {
+	background-color: rgb(255, 230, 240);
+	/* Pop pink background */
+	border: 2px solid var(--color-primary);
+	border-radius: 8px;
+	padding: 8px;
+	margin: 8px 0;
+	position: relative;
+	box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
+}
+
+.timeline-item.timeline-current::after {
+	content: "YOU ARE HERE!";
+	position: absolute;
+	right: -10px;
+	top: -15px;
+	background: var(--color-primary);
+	color: white;
+	font-size: 0.7rem;
+	padding: 2px 8px;
+	border-radius: 12px;
+	transform: rotate(5deg);
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+	font-weight: bold;
+	font-family: var(--font-heading);
+}
