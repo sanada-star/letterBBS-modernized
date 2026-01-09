@@ -99,77 +99,178 @@ function makeDraggable(el, handle) {
 const DESK_STORAGE_KEY = 'letterBBS_correspondesk';
 
 // デスクに置くボタンをクリック
-function addToDesk(buttonElement) {
-    console.log("[Debug] addToDesk called");
+function addToDesk(arg1, arg2) {
+    let buttonElement, targetName;
 
-    // 親のpostコンテナから情報を取得
-    const postElement = buttonElement.closest('.post');
-    if (!postElement) {
-        console.error("[Debug] Error: .post element not found");
-        alert("エラー: 記事データが見つかりません");
-        return;
-    }
-
-    // 投稿者名の取得（複数のパターンで試行）
-    let targetName = "名無し";
-    const authorBold = postElement.querySelector('.res-author b'); // パターン1: .res-author 内の bタグ
-    const metaFlex = postElement.querySelector('.art-meta-flex');  // パターン2: 親コンテナ
-
-    if (authorBold) {
-        targetName = authorBold.innerText.trim();
-        console.log("[Debug] Name found via .res-author b:", targetName);
-    } else if (metaFlex) {
-        // フォールバック: テキストノードなどから無理やり探す
-        console.warn("[Debug] Warning: .res-author b not found. Trying fallback...");
-        const rawText = metaFlex.innerText;
-        const match = rawText.match(/^(.+?)\s*\(\d{4}\//); // 日付の前までを取得
-        if (match && match[1]) {
-            targetName = match[1].trim();
-            console.log("[Debug] Name found via fallback regex:", targetName);
-        }
+    // 引数のゆらぎ吸収（HTMLが古い場合と新しい場合の両方に対応）
+    if (arg1 instanceof HTMLElement) {
+        // パターンA: addToDesk(this) - 古いHTML
+        buttonElement = arg1;
+        targetName = null; // 後でDOMから取得
     } else {
-        console.error("[Debug] Error: Could not resolve targetName");
+        // パターンB: addToDesk('Name', this) - 新しいHTML
+        targetName = arg1;
+        buttonElement = arg2;
     }
 
-    // 本文の取得
-    const commentElement = postElement.querySelector('.comment');
-    console.log("[Debug] commentElement:", commentElement);
+    if (!buttonElement) return;
 
-    // 元のコメントを引用形式に整形
-    let originalText = commentElement ? commentElement.innerText.trim() : "";
-    console.log("[Debug] originalText length:", originalText.length);
-
-    // 長すぎる場合は適度にカット（150文字程度）
-    if (originalText.length > 150) {
-        originalText = originalText.substring(0, 150) + "...";
-    }
-
-    // 引用記号を付与
-    const formattedQuote = `> ${targetName}さんの発言:\n> ${originalText.replace(/\n/g, '\n> ')}\n\n`;
-    console.log("[Debug] formattedQuote:", formattedQuote);
-
+    // 親のpostコンテナから入力エリアを探して表示
+    const postElement = buttonElement.closest('.post');
     const inputArea = postElement.querySelector('.desk-input-area');
+
+    // targetNameが未取得ならここで取得（フォールバック）
+    if (!targetName) {
+        const authorBold = postElement.querySelector('.res-author b');
+        if (authorBold) targetName = authorBold.innerText.trim();
+        else targetName = "名無し"; // 最終手段
+    }
+
     if (inputArea) {
         inputArea.style.display = 'block';
         const textarea = inputArea.querySelector('.desk-textarea');
-        console.log("[Debug] textarea found. current value:", textarea.value);
 
-        // 宛先情報を placeholder などでヒント出し（内部管理用）
-        textarea.placeholder = `${targetName} さんへのお返事をここに...`;
+        // タイムライン表示エリアの取得（なければ作る！）
+        let timelineContainer = inputArea.querySelector('.desk-timeline');
+        if (!timelineContainer) {
+            console.log("Creating missing timeline container...");
+            timelineContainer = document.createElement('div');
+            timelineContainer.className = 'desk-timeline';
+            timelineContainer.style.display = 'none'; // 初期は非表示
+            // 入力欄(fieldの親または前)の前に挿入
+            const firstField = inputArea.querySelector('.desk-field');
+            if (firstField) {
+                inputArea.insertBefore(timelineContainer, firstField);
+            } else {
+                inputArea.prepend(timelineContainer);
+            }
+        }
 
-        // 入力欄が空の場合のみ引用をセット
-        if (!textarea.value) {
-            textarea.value = formattedQuote;
-            console.log("[Debug] Quote inserted successfully");
-        } else {
-            console.log("[Debug] Textarea is not empty. Skipping insert.");
+        if (timelineContainer) {
+            timelineContainer.style.display = 'flex'; // 表示
+            loadConversationHistory(targetName, timelineContainer);
         }
 
         textarea.focus();
-        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-    } else {
-        console.error("[Debug] Error: .desk-input-area not found");
     }
+}
+
+// 会話履歴（タイムライン）をロードする
+async function loadConversationHistory(targetName, container) {
+    container.innerHTML = '<div class="timeline-loader">会話履歴を読み込んでいます...</div>';
+
+    try {
+        const bbs_cgi = './patio.cgi';
+
+        // 1. 自分の名前（現在のスレッドオーナー）を取得
+        // read.html の .post.starter .art-meta から取得する想定
+        let myName = "私";
+        const metaDiv = document.querySelector('.post.starter .art-meta');
+        if (metaDiv) {
+            // "投稿者： 名前" という形式を想定してパース
+            const text = metaDiv.innerText;
+            const match = text.match(/投稿者\s*：\s*(.+)/);
+            if (match && match[1]) {
+                myName = match[1].trim().split(/\s/)[0]; // 空白区切りで最初の部分だけ取るなどの正規化
+            }
+        }
+        console.log(`[Timeline] Me: ${myName}, Target: ${targetName}`);
+
+        // 2. 現在のページ（自分の箱）から「相手からのメッセージ」を抽出
+        // .post.reply を走査
+        const incomingMsgs = [];
+        document.querySelectorAll('.post.reply').forEach(post => {
+            const authorEl = post.querySelector('.res-author b');
+            const dateEl = post.querySelector('.res-author span');
+            const commentEl = post.querySelector('.comment');
+
+            if (authorEl && authorEl.innerText.trim() === targetName) {
+                // 日付パース (YYYY/MM/DD(Day) HH:MM)
+                let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
+                // 必要なら厳密なパースを行うが、文字列比較でもある程度いける。
+                // UnixTimeに変換できればベスト。
+
+                incomingMsgs.push({
+                    type: 'incoming',
+                    author: targetName,
+                    date: dateStr,
+                    text: commentEl ? commentEl.innerHTML : '', // HTMLのまま保持
+                    rawDate: parseDate(dateStr)
+                });
+            }
+        });
+
+        // 3. 相手のスレッド（相手の箱）を取得して「自分からのメッセージ」を抽出
+        const findResponse = await fetch(`${bbs_cgi}?mode=find_owner&name=${encodeURIComponent(targetName)}`);
+        const findData = await findResponse.text();
+
+        const outgoingMsgs = [];
+
+        if (findData.startsWith('target_id:')) {
+            const threadId = findData.split(':')[1];
+            // 相手のログを取得
+            const logResponse = await fetch(`${bbs_cgi}?read=${threadId}&mode=read`); // mode=readでHTML取得
+            const logHtml = await logResponse.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(logHtml, 'text/html');
+
+            doc.querySelectorAll('.post.reply').forEach(post => {
+                const authorEl = post.querySelector('.res-author b');
+                const dateEl = post.querySelector('.res-author span');
+                const commentEl = post.querySelector('.comment');
+
+                if (authorEl && authorEl.innerText.trim() === myName) {
+                    let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
+                    outgoingMsgs.push({
+                        type: 'outgoing',
+                        author: myName, // 自分
+                        date: dateStr,
+                        text: commentEl ? commentEl.innerHTML : '',
+                        rawDate: parseDate(dateStr)
+                    });
+                }
+            });
+        }
+
+        // 4. マージしてソート
+        const allMsgs = [...incomingMsgs, ...outgoingMsgs];
+        allMsgs.sort((a, b) => a.rawDate - b.rawDate);
+
+        // 5. 描画
+        if (allMsgs.length === 0) {
+            container.innerHTML = '<div class="timeline-loader">過去の会話履歴はありません。</div>';
+        } else {
+            container.innerHTML = '';
+            allMsgs.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `timeline-msg ${msg.type}`;
+                msgDiv.innerHTML = `
+                    <div>${msg.text}</div>
+                    <span class="timeline-meta">${msg.date}</span>
+                `;
+                container.appendChild(msgDiv);
+            });
+            // 最新（一番下）へスクロール
+            container.scrollTop = container.scrollHeight;
+        }
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<div class="timeline-loader">履歴の読み込みに失敗しました。</div>';
+    }
+}
+
+// 日付文字列をDateオブジェクトに変換するヘルパー
+// 想定形式: (2025/01/09(Fri) 14:00) などのバリエーションに対応
+function parseDate(str) {
+    if (!str) return 0;
+    // カッコなどを除去して純粋な日付文字列にする努力
+    // 例: "2025/01/09(Fri) 14:00" -> "2025/01/09 14:00"
+    let cleanStr = str.replace(/\([A-Za-z]+\)/, '');
+    // Date.parseで読めるかトライ
+    let time = Date.parse(cleanStr);
+    if (isNaN(time)) return 0;
+    return time;
 }
 
 // 入力エリアを閉じる
@@ -181,6 +282,9 @@ function closeDeskInput(buttonElement) {
         inputArea.querySelector('.desk-name').value = '';
         inputArea.querySelector('.desk-pwd').value = '';
         inputArea.querySelector('.desk-textarea').value = '';
+        // タイムラインもクリアしておく（次回開くときに再ロード）
+        const timeline = inputArea.querySelector('.desk-timeline');
+        if (timeline) timeline.innerHTML = '';
     }
 }
 
