@@ -1199,7 +1199,6 @@ EOM
 	<th>テーマ選択</th>
 	<td>
 		<label><input type="radio" name="theme" value="std" $checked_std> 標準（Pop/Chaotic）</label><br>
-		<label><input type="radio" name="theme" value="std" $checked_std> 標準（Pop/Chaotic）</label><br>
 		<label><input type="radio" name="theme" value="gloomy" $checked_gloomy> Gloomy（Dark/Muted）</label><br>
 		<label><input type="radio" name="theme" value="simple" $checked_simple> Simple（Neutral/Business）</label>
 	</td>
