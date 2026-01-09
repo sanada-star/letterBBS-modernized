@@ -264,8 +264,10 @@ sub pass_mgr {
 	<td>[新規]</td>
 	<td><input type="text" name="id" size="20"></td>
 	<td>
-		<input type="text" name="pw" size="20">
-		<input type="submit" name="add" value="追加">
+		<div style="display:flex; gap:10px; align-items:center;">
+			<input type="text" name="pw" size="20" style="width: auto; flex: 1;">
+			<input type="submit" name="add" value="追加">
+		</div>
 	</td>
 </tr>
 EOM
@@ -276,8 +278,8 @@ EOM
 		
 		print qq|<tr><td><input type="submit" name="del:$id" value="削除" onclick="return confirm('よろしいですか？');"></td>|;
 		print qq|<td class="ta-c"><b>$id</b></td>|;
-		print qq|<td><input type="text" name="pwd:$id" size="20">\n|;
-		print qq|<input type="submit" name="chg:$id" value="変更"></td></tr>\n|;
+		print qq|<td><div style="display:flex; gap:10px; align-items:center;"><input type="text" name="pwd:$id" size="20" style="width: auto; flex: 1;">\n|;
+		print qq|<input type="submit" name="chg:$id" value="変更"></div></td></tr>\n|;
 	}
 	close(IN);
 	
