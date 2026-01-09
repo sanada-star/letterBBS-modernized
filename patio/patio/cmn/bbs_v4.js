@@ -127,6 +127,12 @@ function addToDesk(arg1, arg2) {
     }
 
     if (inputArea) {
+        // Toggle: 既に表示されている場合は閉じる
+        if (inputArea.style.display === 'block') {
+            inputArea.style.display = 'none';
+            return;
+        }
+
         inputArea.style.display = 'block';
         const textarea = inputArea.querySelector('.desk-textarea');
 
