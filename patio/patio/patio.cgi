@@ -51,30 +51,166 @@ if ($in{mode} eq 'past') { past_page(); }
 if ($in{mode} eq 'manual') { manual_page(); }
 if ($in{mode} eq 'manual') { manual_page(); }
 if ($in{mode} eq 'find_owner') { find_owner(); }
+if ($in{mode} eq 'manual') { manual_page(); }
+if ($in{mode} eq 'find_owner') { find_owner(); }
 if ($in{mode} eq 'check_env') { check_env_func(); } # Debug mode
+if ($in{mode} eq 'archive') { download_archive(); } # Log Archive
 bbs_list();
 
 #-----------------------------------------------------------
-#  環境チェック (Debug)
+#  ログアーカイブ (Memory Box)
 #-----------------------------------------------------------
-sub check_env_func {
-    print "Content-type: text/html\n\n";
-    print "<html><body><h1>Environment Check (via patio.cgi)</h1>";
-    print "<h2>Perl Version</h2><pre>$]</pre>";
+sub download_archive {
+    # モジュール動的ロード
+    eval { require Archive::Zip; Archive::Zip->import( qw( :ERROR_CODES :CONSTANTS ) ); };
+    if ($@) { error("Archive::Zip module not found: $@"); }
 
-    print "<h3>Archive::Zip</h3>";
-    eval { require Archive::Zip; };
-    if ($@) { print "<p style='color:red'>NOT Installed: $@</p>"; }
-    else { print "<p style='color:green'>Installed. Version: $Archive::Zip::VERSION</p>"; }
+    my $no = $in{no};
+    $no =~ s/\D//g;
+    
+    if (!$no) { error("スレッド番号が指定されていません"); }
 
-    print "<h3>IO::Compress::Zip</h3>";
-    eval { require IO::Compress::Zip; };
-    if ($@) { print "<p style='color:red'>NOT Installed: $@</p>"; }
-    else { print "<p style='color:green'>Installed. Version: $IO::Compress::Zip::VERSION</p>"; }
+    my $logfile = "$cf{datadir}/log/$no.cgi";
+    if (!-e $logfile) {
+        error("指定されたスレッドが見つかりません");
+    }
 
-    print "</body></html>";
+    # ログ読み込み
+    open(IN, $logfile) or error("ログファイルが開けません");
+    my $top = <IN>; # 親記事ヘッダ
+    my $par = <IN>; # 親記事本文
+    my @lines = <IN>; # レス
+    close(IN);
+
+    # スレッド情報取得
+    my ($p_no, $p_sub, $p_res, $p_key) = split(/<>/, $top);
+    
+    # 画像ファイル収集用
+    my %images_to_add;
+
+    # HTML生成開始
+    my $html_content = generate_archive_header($p_sub);
+    
+    # 親記事処理
+    $html_content .= process_archive_post($par, 'starter', \%images_to_add);
+
+    # レス記事処理
+    foreach my $line (@lines) {
+        $html_content .= process_archive_post($line, 'reply', \%images_to_add);
+    }
+
+    $html_content .= generate_archive_footer();
+
+    # ZIP作成
+    my $zip = Archive::Zip->new();
+    
+    # index.html 追加
+    my $string_member = $zip->addString( $html_content, 'index.html' );
+    $string_member->desiredCompressionMethod( COMPRESSION_DEFLATED );
+
+    # 画像ファイル追加
+    foreach my $img_path (keys %images_to_add) {
+        my $zip_path = $images_to_add{$img_path};
+        if (-e $img_path) {
+            my $file_member = $zip->addFile( $img_path, $zip_path );
+            if ($file_member) {
+                $file_member->desiredCompressionMethod( COMPRESSION_DEFLATED );
+            }
+        }
+    }
+
+    # CSSファイル追加
+    if (-e "$cf{cmnurl}/style.css") { $zip->addFile("$cf{cmnurl}/style.css", "style.css"); }
+    if (-e "$cf{cmnurl}/style_simple.css") { $zip->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css"); }
+    if (-e "$cf{cmnurl}/style_gloomy.css") { $zip->addFile("$cf{cmnurl}/style_gloomy.css", "style_gloomy.css"); }
+    
+    # 出力
+    print "Content-Type: application/zip\n";
+    print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
+
+    binmode STDOUT;
+    $zip->writeToFileHandle( \*STDOUT ) == AZ_OK 
+        or error("Write to STDOUT failed");
+    
     exit;
 }
+
+sub process_archive_post {
+    my ($line, $type, $img_ref) = @_;
+    my ($no, $sub, $nam, $eml, $com, $date, $ho, $pw, $url, $mlo, $myid, $tim, $up1, $up2, $up3) = split(/<>/, $line);
+
+    $com =~ s/&lt;br&gt;/<br>/g;
+    $com =~ s/&lt;br \/&gt;/<br>/g;
+
+    my $img_html = "";
+    foreach my $up ($up1, $up2, $up3) {
+        if ($up) {
+            my ($ext, $orig) = split(/,/, $up);
+            my $n = ($up eq $up1) ? 1 : ($up eq $up2) ? 2 : 3;
+            my $src_file = "$cf{upldir}/$tim-$n$ext";
+            my $zip_path = "images/$tim-$n$ext";
+            $img_ref->{$src_file} = $zip_path;
+            $img_html .= qq|<div class="art-img"><a href="$zip_path" target="_blank"><img src="$zip_path" style="max-width:300px;"></a></div>|;
+        }
+    }
+
+    my $class = ($type eq 'starter') ? "post starter" : "post reply";
+
+    return <<HTML;
+<div class="$class" id="post-$no">
+    <div class="art-meta">
+        <div><b>投稿者</b>： $nam</div>
+        <div><b>投稿日</b>： $date</div>
+        <div>$sub</div>
+    </div>
+    <div class="comment">
+        $img_html
+        $com
+    </div>
+</div>
+HTML
+}
+
+sub generate_archive_header {
+    my $title = shift;
+    return <<HTML;
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$title - Memory Box</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { max-width: 900px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #fdfdfd; color: #333; }
+.post { margin-bottom: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.starter { border-left: 6px solid #ff4757; }
+.reply { margin-left: 30px; border-left: 4px solid #747d8c; }
+.art-meta { color: #666; font-size: 0.85rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; display:flex; gap:15px; flex-wrap:wrap; }
+.comment { line-height: 1.8; font-size: 1rem; }
+.art-img { margin: 15px 0; }
+.art-img img { border-radius: 8px; border: 1px solid #eee; }
+h1 { color: #ff4757; border-bottom: 2px solid #ff4757; padding-bottom: 10px; font-size: 1.5rem; }
+</style>
+</head>
+<body>
+<h1>$title</h1>
+<p style="text-align:right; font-size:0.8em; color:#999; margin-bottom: 30px;">Exported by Memory Box : LetterBBS</p>
+HTML
+}
+
+sub generate_archive_footer {
+    return <<HTML;
+<hr style="margin-top:50px; border:0; border-top:1px solid #eee;">
+<p style="text-align:center; color:#ccc; font-size:0.8em; margin-bottom:50px;">&copy; LetterBBS Archive</p>
+</body>
+</html>
+HTML
+}
+
+#-----------------------------------------------------------
+#  テンプレート分割 (Helper for later)
+#-----------------------------------------------------------
 
 #-----------------------------------------------------------
 #  メニュー部表示
