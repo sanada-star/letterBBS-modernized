@@ -203,6 +203,9 @@ async function loadConversationHistory(targetName, container, currentRefPost) {
                     .join('<br>');
 
                 if (cleanText) {
+                    // postが現在の表示場所（container）を含んでいるかチェック（これが確実）
+                    const isHere = post.contains(container) || (post === currentRefPost);
+
                     incomingMsgs.push({
                         type: 'incoming',
                         author: targetName,
@@ -210,7 +213,7 @@ async function loadConversationHistory(targetName, container, currentRefPost) {
                         date: dateStr,
                         text: cleanText,
                         rawDate: parseDate(dateStr),
-                        isCurrent: (post === currentRefPost)
+                        isCurrent: isHere
                     });
                 }
             }
