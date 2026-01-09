@@ -73,7 +73,7 @@ sub bbs_list {
 		$tmpl =~ s|<!-- auth -->.+?<!-- /auth -->||sg;
 	}
 	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v3.js|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!homepage!/$cf{homepage}/g;
