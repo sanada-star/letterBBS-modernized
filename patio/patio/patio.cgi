@@ -25,6 +25,20 @@ my %in = parse_form($cgi);
 # 認証モード
 my %au = authent() if ($cf{authkey});
 
+# テーマ読み込み
+my $theme_file = "$cf{datadir}/theme.dat";
+my $css_file = "style.css"; # default
+if (open(THEME, "$theme_file")) {
+	my $saved_theme = <THEME>;
+	close(THEME);
+	chomp($saved_theme);
+	if ($saved_theme eq 'gloomy') {
+		$css_file = "style_gloomy.css";
+	}
+}
+$cf{css_filename} = $css_file;
+
+
 # 処理分岐
 if ($in{read}) { read_log(); }
 if ($in{edit}) { pwd_form(); }
@@ -72,7 +86,7 @@ sub bbs_list {
 	} else {
 		$tmpl =~ s|<!-- auth -->.+?<!-- /auth -->||sg;
 	}
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=20250109_final|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=20250109_final|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
@@ -192,7 +206,7 @@ sub read_log {
 	my $tmpl = join('',<IN>);
 	close(IN);
 	
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=20250109_final|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=20250109_final|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s|<!-- past -->.+?<!-- /past -->||s if ($in{log} ne 'past');
@@ -359,7 +373,7 @@ sub pwd_form {
 	
 	# 文字置換
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s/!sub!/$sub/g;
 	$tmpl =~ s/!name!/$name/g;
 	$tmpl =~ s/!art!/$in{edit}/g;
@@ -384,7 +398,7 @@ sub note_page {
 	close(IN);
 	
 	# 文字置換
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=20250109_final|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=20250109_final|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!maxdata!/$cf{maxdata}バイト/g;
@@ -462,7 +476,7 @@ sub form_page {
 	
 	# 文字置換
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs.js|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!ico:(\w+\.\w+)!/<img src="$cf{cmnurl}\/$1" alt="$1" class="icon">/g;
@@ -513,7 +527,7 @@ sub find_page {
 	
 	# 文字置換
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!ico:(\w+\.\w+)!/<img src="$cf{cmnurl}\/$1" alt="$1" class="icon">/g;
 	$tmpl =~ s/<!-- op_cond -->/$op_cond/g;
@@ -652,7 +666,7 @@ sub past_page {
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!ico:(\w+\.\w+)!/<img src="$cf{cmnurl}\/$1" alt="$1" class="icon">/g;
 	$tmpl =~ s/!page-btn!/$page_btn/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=20250109_final|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	
 	my ($head,$loop,$foot) = $tmpl =~ m|(.+)<!-- loop -->(.+?)<!-- /loop -->(.+)|s

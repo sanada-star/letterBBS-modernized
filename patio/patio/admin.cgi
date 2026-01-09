@@ -34,6 +34,7 @@ if ($in{data_now} or $in{data_past}) { data_mgr(); }
 if ($in{auth_mgr}) { auth_mgr(); }
 if ($in{size_chk}) { size_chk(); }
 if ($in{pass_mgr}) { pass_mgr(); }
+if ($in{design_mgr}) { design_mgr(); }
 
 # メニュー画面
 menu_html();
@@ -73,6 +74,9 @@ EOM
 </tr><tr>
 	<td><input type="submit" name="pass_mgr" value="選択"></td>
 	<td>パスワード管理</td>
+</tr><tr>
+	<td><input type="submit" name="design_mgr" value="選択"></td>
+	<td>デザイン設定</td>
 </tr><tr>
 	<td><input type="submit" name="logoff" value="選択"></td>
 	<td>ログアウト</td>
@@ -1135,4 +1139,78 @@ sub encrypt {
 	my $salt = $wd[int(rand(@wd))] . $wd[int(rand(@wd))];
 	return crypt($in, $salt) || crypt ($in, '$1$' . $salt);
 }
+
+#-----------------------------------------------------------
+#  デザイン管理
+#-----------------------------------------------------------
+sub design_mgr {
+	# 設定保存
+	if ($in{job} eq 'save') {
+		open(OUT, "> $cf{datadir}/theme.dat") or cgi_err("write err: theme.dat");
+		print OUT $in{theme};
+		close(OUT);
+		
+		header("デザイン設定");
+		print <<EOM;
+<div id="body">
+<div id="ttl">
+	<img src="$cf{cmnurl}/db_gear.png" class="icon"> デザイン設定
+</div>
+<div class="msg-box">
+	設定を保存しました。<br>
+	<a href="$cf{admin_cgi}">管理メニューへ戻る</a>
+</div>
+</div>
+</body>
+</html>
+EOM
+		exit;
+	}
+
+	# 設定読み込み
+	my $current_theme = 'std';
+	if (open(IN, "$cf{datadir}/theme.dat")) {
+		$current_theme = <IN>;
+		close(IN);
+		chomp($current_theme);
+	}
+	$current_theme ||= 'std';
+	
+	my $checked_std = ($current_theme eq 'std') ? 'checked' : '';
+	my $checked_gloomy = ($current_theme eq 'gloomy') ? 'checked' : '';
+
+	header("デザイン設定");
+	back_btn();
+	print <<EOM;
+<div id="ttl">
+	<img src="$cf{cmnurl}/db_gear.png" class="icon"> デザイン設定
+</div>
+<ul>
+<li>BBSのテーマカラー（CSS）を設定します。
+</ul>
+<form action="$cf{admin_cgi}" method="post">
+<input type="hidden" name="sid" value="$in{sid}">
+<input type="hidden" name="design_mgr" value="1">
+<input type="hidden" name="job" value="save">
+<table class="form-tbl">
+<tr>
+	<th>テーマ選択</th>
+	<td>
+		<label><input type="radio" name="theme" value="std" $checked_std> 標準（Pop/Chaotic）</label><br>
+		<label><input type="radio" name="theme" value="gloomy" $checked_gloomy> Gloomy（Dark/Muted）</label>
+	</td>
+</tr>
+</table>
+<div class="ope-btn">
+	<input type="submit" value="設定保存" class="btn">
+</div>
+</form>
+</div>
+</body>
+</html>
+EOM
+	exit;
+}
+
+1;
 
