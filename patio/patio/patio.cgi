@@ -106,6 +106,12 @@ sub download_archive {
     # 画像処理 (絶対パス変換 & 存在チェック)
     my $count_ok = 0;
     my $count_total = 0;
+    my @debug_log;
+    
+    # デバッグ情報: カレントディレクトリ確認
+    use Cwd;
+    push(@debug_log, "CWD: " . Cwd::getcwd());
+    push(@debug_log, "UplDir Config: $cf{upldir}");
     
     # ZIP作成
     my $zip = Archive::Zip->new();
@@ -115,20 +121,23 @@ sub download_archive {
         $count_total++;
         my $zip_path = $images_to_add{$img_rel_path};
         
-        # 絶対パス解決を試みる (CWDベース)
-        # $cf{upldir} は ./upl なので、そのまま -e でチェック
-        
+        # デバッグ: パス確認
+        my $exists = (-e $img_rel_path) ? "YES" : "NO";
+        push(@debug_log, "File: $img_rel_path -> Exists: $exists");
+
         if (-e $img_rel_path) {
             my $file_member = $zip->addFile( $img_rel_path, $zip_path );
             if ($file_member) {
                 $file_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
                 $count_ok++;
+            } else {
+                 push(@debug_log, "Start Adding File Failed: $img_rel_path");
             }
         }
     }
     
     # フッターにデバッグ情報追加
-    $html_content .= generate_archive_footer($count_ok, $count_total);
+    $html_content .= generate_archive_footer($count_ok, $count_total, \@debug_log);
 
     # index.html 追加
     my $string_member = $zip->addString( $html_content, 'index.html' );
@@ -160,12 +169,20 @@ sub process_archive_post {
     my $img_html = "";
     foreach my $up ($up1, $up2, $up3) {
         if ($up) {
-            my ($ext, $orig) = split(/,/, $up);
+            # split limitを明示的に指定して空フィールドを保持
+            my ($ext, $w, $h) = split(/,/, $up, 3);
+            
+            # 拡張子がない場合のフォールバック（デバッグ用）
+            $ext ||= ".jpg"; 
+
             my $n = ($up eq $up1) ? 1 : ($up eq $up2) ? 2 : 3;
             my $src_file = "$cf{upldir}/$tim-$n$ext";
             my $zip_path = "images/$tim-$n$ext";
+            
+            # パスをハッシュに登録
             $img_ref->{$src_file} = $zip_path;
-            $img_html .= qq|<div class="art-img"><a href="$zip_path" target="_blank"><img src="$zip_path" style="max-width:300px;"></a></div>|;
+            
+            $img_html .= qq|<div class="art-img"><a href="$zip_path" target="_blank"><img src="$zip_path" style="max-width:300px;"><br><small>Debug: $up -> $src_file</small></a></div>|;
         }
     }
 
@@ -215,14 +232,21 @@ HTML
 }
 
 sub generate_archive_footer {
-    my ($ok, $total) = @_;
+    my ($ok, $total, $log_ref) = @_;
     my $msg = ($total > 0) ? "Images: $ok / $total" : "";
+    
+    my $debug_html = "";
+    if ($log_ref) {
+        $debug_html = "<pre style='background:#333; color:#0f0; padding:10px; font-size:10px; overflow:auto;'>DEBUG LOG:\n" . join("\n", @$log_ref) . "</pre>";
+    }
+
     return <<HTML;
 <hr style="margin-top:50px; border:0; border-top:1px solid #eee;">
 <p style="text-align:center; color:#ccc; font-size:0.8em; margin-bottom:50px;">
     &copy; LetterBBS Archive<br>
     <span style="font-size:0.8em; color:#eee;">$msg</span>
 </p>
+$debug_html
 </body>
 </html>
 HTML
