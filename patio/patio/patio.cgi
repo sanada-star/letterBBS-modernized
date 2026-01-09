@@ -62,8 +62,12 @@ bbs_list();
 #-----------------------------------------------------------
 sub download_archive {
     # モジュール動的ロード
-    eval { require Archive::Zip; Archive::Zip->import( qw( :ERROR_CODES :CONSTANTS ) ); };
+    eval { require Archive::Zip; };
     if ($@) { error("Archive::Zip module not found: $@"); }
+    
+    # 定数定義 (遅延ロード対策)
+    my $COMPRESSION_DEFLATED = 8;
+    my $AZ_OK = 0;
 
     my $no = $in{no};
     $no =~ s/\D//g;
@@ -106,7 +110,7 @@ sub download_archive {
     
     # index.html 追加
     my $string_member = $zip->addString( $html_content, 'index.html' );
-    $string_member->desiredCompressionMethod( Archive::Zip::COMPRESSION_DEFLATED );
+    $string_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
 
     # 画像ファイル追加
     foreach my $img_path (keys %images_to_add) {
@@ -114,7 +118,7 @@ sub download_archive {
         if (-e $img_path) {
             my $file_member = $zip->addFile( $img_path, $zip_path );
             if ($file_member) {
-                $file_member->desiredCompressionMethod( Archive::Zip::COMPRESSION_DEFLATED );
+                $file_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
             }
         }
     }
@@ -129,7 +133,7 @@ sub download_archive {
     print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
 
     binmode STDOUT;
-    $zip->writeToFileHandle( \*STDOUT ) == Archive::Zip::AZ_OK 
+    $zip->writeToFileHandle( \*STDOUT ) == $AZ_OK 
         or error("Write to STDOUT failed");
     
     exit;
