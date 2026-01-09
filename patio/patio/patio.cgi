@@ -702,7 +702,8 @@ sub footer {
 	# 著作権表記（削除・改変禁止）
 	my $copy = <<EOM;
 <p style="margin-top:2.5em;text-align:center;font-family:Verdana,Arial,Helvetica;font-size:10px;">
-	- <a href="https://www.kent-web.com/" target="_top">WEB PATIO</a> -
+	- <a href="https://www.kent-web.com/" target="_top">WEB PATIO</a> -<br>
+	<span style="font-size: smaller;">Edit by sanada letterBBS verr 1.0</span>
 </p>
 EOM
 
