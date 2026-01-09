@@ -82,7 +82,7 @@ sub download_archive {
         error("指定されたスレッドが見つかりません");
     }
 
-    # ログ読み込み
+    # ログ読み込み (自分のスレッド)
     open(IN, $logfile) or error("ログファイルが開けません");
     my $top = <IN>; # 親記事ヘッダ
     my $par = <IN>; # 親記事本文
@@ -92,57 +92,131 @@ sub download_archive {
     # スレッド情報取得
     my ($p_no, $p_sub, $p_res, $p_key) = split(/<>/, $top);
     
-    # 画像ファイル収集用 (無効化中だが引数は残す)
+    # 画像ファイル収集用 (無効化中)
     my %images_to_add;
 
     # 投稿データ収集
     my @posts_data;
-    my %authors;
-    my $starter_name = "";
+    my %authors;      # パートナー一覧 (相手の名前)
+    my $my_name = ""; # 自分の名前
 
-    # 親記事処理
-    my ($p_html, $p_name, $p_type) = process_archive_post($par, 'starter', \%images_to_add);
-    push(@posts_data, { html => $p_html, name => $p_name, type => $p_type });
-    $starter_name = $p_name;
+    # 親記事処理 (自分)
+    my ($p_html, $p_name, $p_type, $p_date_raw) = process_archive_post($par, 'starter', \%images_to_add);
+    push(@posts_data, { html => $p_html, name => $p_name, type => $p_type, date => $p_date_raw, context => '' });
+    $my_name = $p_name;
 
-    # レス記事処理
+    # レス記事処理 (相手からのメッセージ + 自分のレス)
     foreach my $line (@lines) {
-        my ($l_html, $l_name, $l_type) = process_archive_post($line, 'reply', \%images_to_add);
-        push(@posts_data, { html => $l_html, name => $l_name, type => $l_type });
+        my ($l_html, $l_name, $l_type, $l_date_raw) = process_archive_post($line, 'reply', \%images_to_add);
         
-        # 集計 (スターター以外)
-        if ($l_name ne $starter_name) {
+        # コンテキスト特定: 相手の名前ならその人をコンテキストに
+        my $context = ($l_name ne $my_name) ? $l_name : "";
+        
+        push(@posts_data, { html => $l_html, name => $l_name, type => $l_type, date => $l_date_raw, context => $context });
+        
+        # パートナーリスト作成
+        if ($l_name ne $my_name) {
             $authors{$l_name}++;
         }
     }
+    
+    # ---------------------------------------------------
+    # クロススレッド検索: 相手の箱にある「自分の発言」を取得
+    # ---------------------------------------------------
+    
+    # 1. 相手のThread IDを特定する
+    my %partner_thread_ids;
+    if (%authors) {
+        open(IDX, "$cf{datadir}/index1.log"); # index1のみ検索 (現行ログ)
+        <IDX>; # ヘッダスキップ
+        while (<IDX>) {
+            my ($num, $sub, $res, $nam) = split(/<>/);
+            if (exists $authors{$nam}) {
+                $partner_thread_ids{$nam} = $num;
+            }
+        }
+        close(IDX);
+    }
+    
+    # 2. 相手のスレッドを読み込んで自分の発言を抽出
+    foreach my $p_nam (keys %partner_thread_ids) {
+        my $p_tid = $partner_thread_ids{$p_nam};
+        my $p_log = "$cf{datadir}/log/$p_tid.cgi";
+        
+        if (open(PLOG, $p_log)) {
+            <PLOG>; # Top
+            <PLOG>; # Parent (Owner's start post) - 通常相手の発言
+            while (<PLOG>) {
+                my $line = $_;
+                my ($no, $sub, $nam) = split(/<>/, $line);
+                
+                # 自分が投稿者なら抽出
+                if ($nam eq $my_name) {
+                    my ($html, $name, $type, $date_raw) = process_archive_post($line, 'reply', \%images_to_add);
+                    
+                    # 重要: この発言は「相手($p_nam)との会話」の一部である
+                    push(@posts_data, { 
+                        html => $html, 
+                        name => $name, 
+                        type => "$type outgoing", # outgoingクラス追加
+                        date => $date_raw, 
+                        context => $p_nam # コンテキストは相手の名前
+                    });
+                }
+            }
+            close(PLOG);
+        }
+    }
+    
+    # 3. 日付順にソート (YYYY/MM/DD(Day) HH:MM)
+    # 文字列比較で概ねOKだが、厳密にはフォーマット依存。
+    # letterBBSの日付フォーマットに依存: 2026/01/09(Fri) 15:15
+    @posts_data = sort { $a->{date} cmp $b->{date} } @posts_data;
 
-    # HTML生成 (Chat Style)
+
+    # HTML生成
     my $html_content = generate_archive_header($p_sub, \%authors);
     
-    # メインコンテンツエリア開始
+    # コンテナ
     $html_content .= qq|<div class="chat-container">\n|;
     
-    # サイドバー (PC用) / 上部メニュー (モバイル用)
+    # サイドバー
     $html_content .= qq|<div class="sidebar">\n|;
     $html_content .= qq|<div class="sidebar-header">Talk List</div>\n|;
     $html_content .= qq|<button class="filter-btn active" onclick="filterTimeline('all', this)">全て表示</button>\n|;
     
     foreach my $auth (sort keys %authors) {
-        my $count = $authors{$auth};
-        $html_content .= qq|<button class="filter-btn" onclick="filterTimeline('$auth', this)">$auth <span class="badge">$count</span></button>\n|;
+        my $count = $authors{$auth}; 
+        # 件数は正確ではない（マージ後なので）。しかし一旦相手からの件数とするか、
+        # あるいは posts_data から数え直すのが正確。
+        my $real_count = 0;
+        foreach my $p (@posts_data) {
+            # コンテキストが合致 または 発言者がその人
+            if ($p->{context} eq $auth || $p->{name} eq $auth) {
+                $real_count++;
+            }
+        }
+        
+        $html_content .= qq|<button class="filter-btn" onclick="filterTimeline('$auth', this)">$auth <span class="badge">$real_count</span></button>\n|;
     }
-    $html_content .= qq|</div>\n|; # end sidebar
+    $html_content .= qq|</div>\n|;
 
-    # タイムラインエリア
+    # タイムライン (マージ済みデータを出力)
     $html_content .= qq|<div class="timeline" id="timeline">\n|;
     
     foreach my $post (@posts_data) {
-        my $is_starter = ($post->{type} eq 'starter') ? 'true' : 'false';
-        my $auth_attr = $post->{name};
-        # エスケープ処理 (簡易)
-        $auth_attr =~ s/"/&quot;/g;
+        my $is_starter = ($post->{type} =~ /starter/) ? 'true' : 'false';
         
-        $html_content .= qq|<div class="msg-wrapper" data-author="$auth_attr" data-starter="$is_starter">\n|;
+        # フィルタ用属性
+        # data-author: 発言者
+        # data-context: 会話相手 (自分の発言の場合にセットされている)
+        my $auth_attr = $post->{name};
+        my $ctx_attr = $post->{context};
+        
+        $auth_attr =~ s/"/&quot;/g;
+        $ctx_attr =~ s/"/&quot;/g;
+        
+        $html_content .= qq|<div class="msg-wrapper" data-author="$auth_attr" data-context="$ctx_attr" data-starter="$is_starter">\n|;
         $html_content .= $post->{html};
         $html_content .= qq|</div>\n|;
     }
@@ -150,31 +224,25 @@ sub download_archive {
     $html_content .= qq|</div>\n|; # end timeline
     $html_content .= qq|</div>\n|; # end chat-container
 
-    # 変数初期化
+    # ZIP作成
     my $zip = Archive::Zip->new();
     my $count_ok = 0;
     my $count_total = 0;
 
-    # CSSファイル追加
     if (-e "$cf{cmnurl}/style.css") { $zip->addFile("$cf{cmnurl}/style.css", "style.css"); }
     if (-e "$cf{cmnurl}/style_simple.css") { $zip->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css"); }
     if (-e "$cf{cmnurl}/style_gloomy.css") { $zip->addFile("$cf{cmnurl}/style_gloomy.css", "style_gloomy.css"); }
     
-    # フッター生成
     $html_content .= generate_archive_footer($count_ok, $count_total);
 
-    # index.html 追加
     my $string_member = $zip->addString( $html_content, 'index.html' );
     $string_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
 
-    # 出力
     print "Content-Type: application/zip\n";
     print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
 
     binmode STDOUT;
-    $zip->writeToFileHandle( \*STDOUT ) == $AZ_OK 
-        or error("Write to STDOUT failed");
-    
+    $zip->writeToFileHandle( \*STDOUT ) == $AZ_OK or error("Write failed");
     exit;
 }
 
@@ -200,7 +268,7 @@ sub process_archive_post {
 </div>
 HTML
 
-    return ($html, $nam, $type);
+    return ($html, $nam, $type, $date);
 }
 
 sub generate_archive_header {
@@ -237,16 +305,17 @@ header p { margin: 0; font-size: 0.8rem; color: #999; }
 .msg-wrapper { transition: all 0.3s ease; }
 .msg-wrapper.hidden { display: none; }
 
-/* Post Styling (Override) */
+/* Post Styling */
 .post { margin-bottom: 20px; padding: 15px; border: 1px solid #f0f0f0; border-radius: 12px; background: #fff; max-width: 800px; margin-left: auto; margin-right: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .starter { border: 2px solid #ff4757; background: #fff5f6; }
 .reply { border-left: 4px solid #747d8c; }
+.reply.outgoing { border-left: 4px solid #ff4757; background: #fff0f0; margin-right: 30px; margin-left: auto; } /* 自分の発言強調 */
 
 .art-meta { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85rem; color: #777; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
 .name { font-weight: bold; color: #333; }
 .comment { line-height: 1.7; font-size: 0.95rem; word-wrap: break-word; }
 
-/* Mobile Responsive */
+/* Mobile */
 \@media (max-width: 768px) {
     .chat-container { flex-direction: column; }
     .sidebar { width: 100%; height: 120px; border-right: none; border-bottom: 1px solid #ddd; flex-shrink: 0; }
@@ -254,25 +323,33 @@ header p { margin: 0; font-size: 0.8rem; color: #999; }
 }
 </style>
 <script>
-function filterTimeline(targetAuthor, btn) {
+function filterTimeline(targetName, btn) {
     // Buttons
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // Filter
+    // Filter Logic
     const items = document.querySelectorAll('.msg-wrapper');
     items.forEach(item => {
         const author = item.getAttribute('data-author');
+        const context = item.getAttribute('data-context');
         const isStarter = item.getAttribute('data-starter');
 
-        if (targetAuthor === 'all' || author === targetAuthor || isStarter === 'true') {
+        // Logic:
+        // 1. Show all if 'all'
+        // 2. Show if Author is Target
+        // 3. Show if Context is Target (My reply TO Target)
+        // 4. Always show Starter (optional, keeps context)
+        
+        if (targetName === 'all') {
+            item.classList.remove('hidden');
+        } else if (author === targetName || context === targetName || isStarter === 'true') {
             item.classList.remove('hidden');
         } else {
             item.classList.add('hidden');
         }
     });
 
-    // Scroll to top
     document.getElementById('timeline').scrollTop = 0;
 }
 </script>
