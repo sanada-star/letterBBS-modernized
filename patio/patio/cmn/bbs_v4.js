@@ -177,22 +177,58 @@ async function loadConversationHistory(targetName, container, currentRefPost) {
         console.log(`[Timeline] Me: ${myName}, Target: ${targetName}`);
 
         // 2. 現在のページ（自分の箱）から「相手からのメッセージ」を抽出
-        // .post.reply を走査
+        // .post (starter & reply) を走査
         const incomingMsgs = [];
 
-        document.querySelectorAll('.post.reply').forEach(post => {
-            const authorEl = post.querySelector('.res-author b');
-            const dateEl = post.querySelector('.res-author span');
-            const commentEl = post.querySelector('.comment');
-            const subEl = post.querySelector('.res-sub');
+        document.querySelectorAll('.post').forEach(post => {
+            let authorName = '';
+            let dateStr = '';
+            let subjectStr = '';
+            let cleanText = '';
 
-            if (authorEl && authorEl.innerText.trim() === targetName) {
-                // 日付パース
-                let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
+            // A. Starter Post aka 親記事
+            if (post.classList.contains('starter')) {
+                // Author & Date finding from .art-meta
+                // Format: <div><b>投稿者</b>： 名前</div>
+                const metaDivs = post.querySelectorAll('.art-meta div');
+                metaDivs.forEach(div => {
+                    const text = div.innerText;
+                    if (text.includes('投稿者')) {
+                        const match = text.match(/投稿者\s*：\s*(.+)/);
+                        if (match) authorName = match[1].trim();
+                    }
+                    if (text.includes('投稿日')) {
+                        const match = text.match(/投稿日\s*：\s*(.+)/);
+                        if (match) dateStr = match[1].trim().replace(/[()]/g, '');
+                    }
+                });
 
+                // Subject from .art-head
+                // Text often includes icon text if img alt is present, but try to get pure text
+                const headEl = post.querySelector('.art-head');
+                if (headEl) subjectStr = headEl.innerText.trim();
+
+                // Content
+                const commentEl = post.querySelector('.comment');
+                if (commentEl) cleanText = commentEl.innerHTML;
+            }
+            // B. Reply Post
+            else {
+                const authorEl = post.querySelector('.res-author b');
+                const dateEl = post.querySelector('.res-author span');
+                const commentEl = post.querySelector('.comment');
+                const subEl = post.querySelector('.res-sub');
+
+                if (authorEl) authorName = authorEl.innerText.trim();
+                if (dateEl) dateStr = dateEl.innerText.replace(/[()]/g, '');
+                if (subEl) subjectStr = subEl.innerText.trim();
+                if (commentEl) cleanText = commentEl.innerHTML;
+            }
+
+            // Target check
+            if (authorName === targetName && cleanText) {
                 // 本文のクレンジング
-                let rawHtml = commentEl ? commentEl.innerHTML : '';
-                let cleanText = rawHtml
+                let finalText = cleanText
                     .split(/<br\s*\/?>/i)
                     .map(line => {
                         let text = line.replace(/<[^>]+>/g, '').trim();
@@ -202,16 +238,16 @@ async function loadConversationHistory(targetName, container, currentRefPost) {
                     .filter(line => line !== null && line !== '')
                     .join('<br>');
 
-                if (cleanText) {
+                if (finalText) {
                     // postが現在の表示場所（container）を含んでいるかチェック（これが確実）
                     const isHere = post.contains(container) || (post === currentRefPost);
 
                     incomingMsgs.push({
                         type: 'incoming',
-                        author: targetName,
-                        subject: subEl ? subEl.innerText.trim() : '',
+                        author: authorName,
+                        subject: subjectStr,
                         date: dateStr,
-                        text: cleanText,
+                        text: finalText,
                         rawDate: parseDate(dateStr),
                         isCurrent: isHere
                     });
