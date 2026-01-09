@@ -306,9 +306,10 @@ a:hover {
 	background: var(--color-card);
 	border: 1px solid #ccc;
 	/* Simple border */
-	padding: 1.5rem;
+	padding: 1rem;
 	border-radius: 4px;
-	margin-bottom: 1.5rem;
+	margin-bottom: 1rem;
+	position: relative;
 }
 
 /* Starter Post Distinction */
@@ -321,8 +322,10 @@ a:hover {
 .post.reply {
 	background-color: #ffffff;
 	border-left: 4px solid #ddd;
-	margin-left: 20px;
-	padding: 1rem;
+	margin-left: 0;
+	/* Remove indent to match density */
+	margin-bottom: 0.5rem;
+	padding: 0.8rem 1rem;
 }
 
 .art-head {
@@ -348,22 +351,49 @@ a:hover {
 }
 
 .comment {
-	font-size: 1rem;
-	line-height: 1.8;
+	font-size: 0.95rem;
+	line-height: 1.6;
 }
 
 .edit-link {
-	text-align: right;
-	margin-top: 10px;
-	font-size: 0.85rem;
+	position: absolute;
+	top: 0.8rem;
+	right: 1rem;
+	margin: 0;
+	z-index: 10;
 }
 
 .edit-link a {
-	color: #999;
+	display: inline-block;
+	color: #999 !important;
+	text-decoration: none;
+	font-size: 0 !important;
+	/* Hide original text/alt */
+	transition: 0.2s;
+	background: none;
+	border: none;
+	padding: 0;
 }
 
 .edit-link a:hover {
-	color: #333;
+	color: var(--color-primary) !important;
+	background: none;
+	text-decoration: none;
+}
+
+.edit-link a img {
+	display: none;
+}
+
+.edit-link a::before {
+	content: "✎ 編集";
+	font-size: 0.8rem !important;
+	/* Restore font size for pseudo-element */
+	white-space: nowrap;
+}
+
+.edit-link a:hover::before {
+	text-decoration: underline;
 }
 
 /* Badges */
