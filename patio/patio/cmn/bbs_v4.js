@@ -858,9 +858,6 @@ const NotificationSystem = {
             return;
         }
 
-        // Calculate total new messages
-        const totalCount = unread.reduce((sum, item) => sum + (item.count || 1), 0);
-
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'notify-toast';
@@ -881,7 +878,7 @@ const NotificationSystem = {
         // Header
         let html = `
             <div style="background:#ff4757; padding:10px 15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-                <span>📮 未読のお手紙 (${totalCount})</span>
+                <span>📮 未読のお手紙</span>
                 <span style="font-size:0.8em; cursor:pointer;" onclick="document.getElementById('notify-toast').style.transform='translateX(120%)'">▼</span>
             </div>
             <div style="padding:10px; max-height:300px; overflow-y:auto;">
@@ -889,12 +886,10 @@ const NotificationSystem = {
 
         // List Items
         unread.forEach(u => {
-            const countLabel = (u.count && u.count > 1) ? `<span style="background:#ff9f43; color:#fff; padding:1px 5px; border-radius:4px; font-size:0.8em; margin-left:5px;">+${u.count}</span>` : '';
-
             html += `
                 <div style="background:rgba(255,255,255,0.1); margin-bottom:8px; padding:10px; border-radius:4px; border-left:3px solid #ff4757; position:relative;">
                     <div style="font-size:0.85em; color:#ccc;">${new Date(u.timestamp).toLocaleTimeString()} / From: ${u.author}</div>
-                    <div style="font-weight:bold; margin:3px 0;">${u.sub}${countLabel}</div>
+                    <div style="font-weight:bold; margin:3px 0;">${u.sub}</div>
                     <a href="./patio.cgi?read=${u.id}&ukey=0" target="_blank" style="color:#61dafb; font-size:0.9em; text-decoration:underline;">返信しに行く</a>
                     <button onclick="NotificationSystem.clearUnread('${u.id}')" style="display:block; width:100%; margin-top:5px; border:none; background:#777; color:#fff; padding:4px; border-radius:2px; cursor:pointer;">× 完了（通知を消す）</button>
                 </div>
