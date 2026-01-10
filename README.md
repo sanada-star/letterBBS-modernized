@@ -3,8 +3,6 @@
 ## 概要
 **LetterBBS** は、KENT WEB様で公開されている「Patio」をベースに、PBC（Play by Chat）やPBW（Play by Web）などの「キャラクター交流」向けに大幅な改造を施したCGIスクリプトです。
 
-往復書簡形式のロールプレイ、1対1の秘匿会話、そして思い出の保存に特化しています。
-
 ## ⚠️ 配布・利用規定 (Distribution & License)
 本プログラムは **KENT WEB** 様の「Patio」を改造したものです。
 利用に際しては、以下のKENT WEB様の規定に従ってください。
