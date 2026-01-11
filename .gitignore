@@ -1,0 +1,22 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+*_notes
+dwsync.xml
+
+# Logs and Session Data
+patio/patio/data/log/*
+!patio/patio/data/log/.gitkeep
+patio/patio/data/ses/*
+!patio/patio/data/ses/.gitkeep
+patio/patio/data/pwd/*
+!patio/patio/data/pwd/.gitkeep
+
+# Uploads
+patio/patio/upl/*
+!patio/patio/upl/.gitkeep
+
+# Temporary or Backup files
+*.bak
+*.swp
+*~
