@@ -1,4 +1,4 @@
-# LetterBBS (Modified Edition)
+# LetterBBS
 
 ## 概要
 **LetterBBS** は、KENT WEB様で公開されている「Patio」をベースに、PBC（Play by Chat）やPBW（Play by Web）などの「キャラクター交流」向けに大幅な改造を施したCGIスクリプトです。
