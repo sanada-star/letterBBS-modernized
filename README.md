@@ -82,7 +82,7 @@
 
 ### 通知機能 (Notifications)
 ![通知設定：名前入力](docs/images/screen_notify_setup_name.png)
-*1. 画面右上の「通知設定」から監視したい名前（スレッド名）を入力*
+*1. 画面右上の「通知設定」から監視したい名前を入力*
 
 ![通知設定：確認](docs/images/screen_notify_setup_confirm.png)
 *2. OKを押して監視をスタート*
