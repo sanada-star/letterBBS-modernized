@@ -12,27 +12,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get latest code
-        uses: actions/checkout@v4.1.1
-
-      - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
+        uses: actions/checkout@v4
 
       # Deploy v3.0 (Main)
       - name: Deploy Main (v3.0)
         if: github.ref == 'refs/heads/main'
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USER: ${{ secrets.FTP_USERNAME }}
-          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          lftp -c "set ssl:verify-certificate no; open -u $FTP_USER,$FTP_PASS $FTP_SERVER; mirror -R -v --no-perms --parallel=2 --exclude data/ --exclude upl/ ./patio/patio/ ./www/patio/"
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./www/patio/
+          local-dir: ./patio/patio/
+          port: 21
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            data/**
+            upl/**
 
       # Deploy v3.1 (Fox)
       - name: Deploy Fox (v3.1-dev)
         if: github.ref == 'refs/heads/v3.1-dev'
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USER: ${{ secrets.FTP_USERNAME }}
-          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          lftp -c "set ssl:verify-certificate no; open -u $FTP_USER,$FTP_PASS $FTP_SERVER; mirror -R -v --no-perms --parallel=2 --exclude data/ --exclude upl/ ./patio/patio/ ./www/fox/patio/"
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./www/fox/patio/
+          local-dir: ./patio/patio/
+          port: 21
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            data/**
+            upl/**
