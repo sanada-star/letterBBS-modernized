@@ -17,7 +17,7 @@ jobs:
       # Deploy v3.0 (Main)
       - name: Deploy Main (v3.0)
         if: github.ref == 'refs/heads/main'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -36,7 +36,7 @@ jobs:
       # Deploy v3.1 (Fox)
       - name: Deploy Fox (v3.1-dev)
         if: github.ref == 'refs/heads/v3.1-dev'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
