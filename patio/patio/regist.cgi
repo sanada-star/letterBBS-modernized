@@ -923,7 +923,7 @@ sub message {
 	$tmpl =~ s/!bbs_cgi!/$cf{bbs_cgi}/g;
 	$tmpl =~ s/!message!/$msg/g;
 	$tmpl =~ s/!read!/$read/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	
 	print "Content-type: text/html; charset=utf-8\n\n";
@@ -1126,7 +1126,7 @@ sub edit_form {
 	}
 	
 	# 文字置換
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!sub!/$sub/g;
 	$tmpl =~ s/!name!/$nam/g;
