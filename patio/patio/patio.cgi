@@ -1086,10 +1086,10 @@ sub footer {
 	
 	# 著作権表記（削除・改変禁止）
 	my $copy = <<EOM;
-<p style="margin-top:2.5em;text-align:center;font-family:Verdana,Arial,Helvetica;font-size:10px;">
-	- <a href="https://www.kent-web.com/" target="_top">WEB PATIO</a> -<br>
-	<span style="font-size: smaller;"><a href="https://github.com/sanada-star/letterBBS-modernized" target="_blank" style="text-decoration:none; color:inherit;">Edit by sanada letterBBS verr 3.0</a></span>
-</p>
+<div class="copyright">
+		- <a href="https://www.kent-web.com/" target="_blank">WEB PATIO</a> -
+		<a href="https://github.com/sanada-star/letterBBS-modernized" target="_blank">Edit by sanada letterBBS v3.1 Fox-windows (Dev)</a>
+	</div>
 EOM
 
 	if ($foot =~ /(.+)(<\/body[^>]*>.*)/si) {
