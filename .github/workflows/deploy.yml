@@ -1,35 +1,37 @@
-name: Deploy to Sakura Server
+name: Deploy LetterBBS
 
 on:
   push:
     branches:
       - main
+      - v3.1-dev
 
 jobs:
   web-deploy:
-    name: 🎉 Deploy
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-    
-    - name: 🔍 List files for debug
-      run: |
-        ls -R ./patio/patio/lib
-    
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.FTP_TARGET }}
-        local-dir: ./patio/patio/
-        port: 21
-        protocol: ftp
-        # exclude: |
-        #   **/.git*
-        #   **/.git*/**
-        #   **/node_modules/**
-        #   data/**
-        #   upl/**
+      - name: Get latest code
+        uses: actions/checkout@v4.1.1
+
+      # Deploy Main (v3.0) to /patio folder
+      - name: Deploy Main (v3.0)
+        if: github.ref == 'refs/heads/main'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./patio/patio/
+          server-dir: ./patio/
+          
+      # Deploy Fox (v3.1-dev) to /fox folder
+      - name: Deploy Fox (v3.1-dev)
+        if: github.ref == 'refs/heads/v3.1-dev'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./patio/patio/
+          server-dir: ./fox/
