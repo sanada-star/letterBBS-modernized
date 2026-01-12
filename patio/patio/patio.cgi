@@ -620,6 +620,13 @@ sub read_log {
 	my $resub = $sub =~ /^Re:/ ? $sub : "Re: $sub";
 	
 	# 文字置き換え
+	if ($cf{image_upl} == 0) {
+		$tmpl =~ s|<!-- image_upl -->.+?<!-- /image_upl -->||sg;
+	} else {
+		$tmpl =~ s|<!-- image_upl -->||g;
+		$tmpl =~ s|<!-- /image_upl -->||g;
+	}
+
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!ico!/icon_img($key,$res,$alarm,$in{ukey})/eg;
 	$tmpl =~ s/!sub!/$sub/g;
@@ -844,6 +851,13 @@ sub form_page {
 	}
 	
 	# 文字置換
+	if ($cf{image_upl} == 0) {
+		$tmpl =~ s|<!-- image_upl -->.+?<!-- /image_upl -->||sg;
+	} else {
+		$tmpl =~ s|<!-- image_upl -->||g;
+		$tmpl =~ s|<!-- /image_upl -->||g;
+	}
+
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_simple_fix|g;
 	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs.js|g;
