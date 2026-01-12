@@ -30,13 +30,13 @@ jobs:
             set ftp:list-options -a;
             open -u $FTP_USER,$FTP_PASS $FTP_SERVER;
             mirror -R -v --parallel=2 --exclude data/ --exclude upl/ ./patio/patio/ ./www/patio/;
-            chmod 705 ./www/patio/patio.cgi;
-            chmod 705 ./www/patio/admin.cgi;
-            chmod 705 ./www/patio/regist.cgi;
-            chmod 705 ./www/patio/init.cgi;
-            chmod 705 ./www/patio/captcha.cgi;
-            chmod 705 ./www/patio/check.cgi;
-            chmod 705 ./www/patio/check_files.cgi;
+            quote SITE CHMOD 705 ./www/patio/patio.cgi;
+            quote SITE CHMOD 705 ./www/patio/admin.cgi;
+            quote SITE CHMOD 705 ./www/patio/regist.cgi;
+            quote SITE CHMOD 705 ./www/patio/init.cgi;
+            quote SITE CHMOD 705 ./www/patio/captcha.cgi;
+            quote SITE CHMOD 705 ./www/patio/check.cgi;
+            quote SITE CHMOD 705 ./www/patio/check_files.cgi;
             bye;
           "
 
@@ -53,12 +53,12 @@ jobs:
             set ftp:list-options -a;
             open -u $FTP_USER,$FTP_PASS $FTP_SERVER;
             mirror -R -v --parallel=2 --exclude data/ --exclude upl/ ./patio/patio/ ./www/fox/patio/;
-            chmod 705 ./www/fox/patio/patio.cgi;
-            chmod 705 ./www/fox/patio/admin.cgi;
-            chmod 705 ./www/fox/patio/regist.cgi;
-            chmod 705 ./www/fox/patio/init.cgi;
-            chmod 705 ./www/fox/patio/captcha.cgi;
-            chmod 705 ./www/fox/patio/check.cgi;
-            chmod 705 ./www/fox/patio/check_files.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/patio.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/admin.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/regist.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/init.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/captcha.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/check.cgi;
+            quote SITE CHMOD 705 ./www/fox/patio/check_files.cgi;
             bye;
           "
