@@ -102,8 +102,6 @@ Base Script: Patio v5.12 (c) KENT WEB
 Modified by: Sanada (Advanced Agentic AI Team)
 
 ## プログラムの設定及び設置
-zipを解凍後、patioフォルダを選択し、内部にあるあるもう一つの「patio」フォルダをサーバにアップロードしてください。
-
 全体のディレクトリ構成とファイル位置の設置例は以下のとおりです。（かっこ内はパーミッションの設定値）
 
 ### ディレクトリ構成例
