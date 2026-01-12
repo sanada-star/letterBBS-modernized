@@ -28,7 +28,7 @@ $cf{authtime} = 60;
 
 # 画像アップを許可する
 # 0=no 1=yes
-$cf{image_upl} = 1;
+$cf{image_upl} = 0;
 
 # サムネイル画像を作成する（要：Image::Magick）
 # → 縮小画像を自動生成し、画像記事の表示速度を軽くする機能
