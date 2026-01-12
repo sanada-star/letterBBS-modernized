@@ -29,7 +29,7 @@ jobs:
             set ssl:verify-certificate no;
             set ftp:list-options -a;
             open -u $FTP_USER,$FTP_PASS $FTP_SERVER;
-            mirror -R -v --parallel=2 ./patio/patio/ ./www/patio/;
+            mirror -R -v --parallel=2 --exclude data/ --exclude upl/ ./patio/patio/ ./www/patio/;
             chmod 705 ./www/patio/patio.cgi;
             chmod 705 ./www/patio/admin.cgi;
             chmod 705 ./www/patio/regist.cgi;
@@ -37,8 +37,6 @@ jobs:
             chmod 705 ./www/patio/captcha.cgi;
             chmod 705 ./www/patio/check.cgi;
             chmod 705 ./www/patio/check_files.cgi;
-            chmod 707 ./www/patio/data;
-            chmod 707 ./www/patio/upl;
             bye;
           "
 
@@ -54,7 +52,7 @@ jobs:
             set ssl:verify-certificate no;
             set ftp:list-options -a;
             open -u $FTP_USER,$FTP_PASS $FTP_SERVER;
-            mirror -R -v --parallel=2 ./patio/patio/ ./www/fox/patio/;
+            mirror -R -v --parallel=2 --exclude data/ --exclude upl/ ./patio/patio/ ./www/fox/patio/;
             chmod 705 ./www/fox/patio/patio.cgi;
             chmod 705 ./www/fox/patio/admin.cgi;
             chmod 705 ./www/fox/patio/regist.cgi;
@@ -62,7 +60,5 @@ jobs:
             chmod 705 ./www/fox/patio/captcha.cgi;
             chmod 705 ./www/fox/patio/check.cgi;
             chmod 705 ./www/fox/patio/check_files.cgi;
-            chmod 707 ./www/fox/patio/data;
-            chmod 707 ./www/fox/patio/upl;
             bye;
           "
