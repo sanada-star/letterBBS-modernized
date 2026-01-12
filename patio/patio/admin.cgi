@@ -1180,9 +1180,9 @@ EOM
 	$current_theme ||= 'std';
 	
 	my $checked_std = ($current_theme eq 'std') ? 'checked' : '';
-	my $checked_std = ($current_theme eq 'std') ? 'checked' : '';
 	my $checked_gloomy = ($current_theme eq 'gloomy') ? 'checked' : '';
 	my $checked_simple = ($current_theme eq 'simple') ? 'checked' : '';
+	my $checked_fox = ($current_theme eq 'fox') ? 'checked' : '';
 
 	header("デザイン設定");
 	back_btn();
@@ -1203,7 +1203,8 @@ EOM
 	<td>
 		<label><input type="radio" name="theme" value="std" $checked_std> 標準（Pop/Chaotic）</label><br>
 		<label><input type="radio" name="theme" value="gloomy" $checked_gloomy> Gloomy（Dark/Muted）</label><br>
-		<label><input type="radio" name="theme" value="simple" $checked_simple> Simple（Neutral/Business）</label>
+		<label><input type="radio" name="theme" value="simple" $checked_simple> Simple（Neutral/Business）</label><br>
+		<label><input type="radio" name="theme" value="fox" $checked_fox> Fox（Mystery/Horror）</label>
 	</td>
 </tr>
 </table>
