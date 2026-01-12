@@ -865,3 +865,4 @@ a:hover {
 #notify-toast button:hover {
 	background: #e0e0e0 !important;
 }
+.copyright { margin-top: 2.5em; text-align: center; font-family: Verdana, Arial, Helvetica; font-size: 10px; }

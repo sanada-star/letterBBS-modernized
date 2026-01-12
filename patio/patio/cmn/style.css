@@ -1285,3 +1285,4 @@ body.mini-mode .correspondesk-panel {
 	position: relative;
 	box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
 }
+.copyright { margin-top: 2.5em; text-align: center; font-family: Verdana, Arial, Helvetica; font-size: 10px; }
